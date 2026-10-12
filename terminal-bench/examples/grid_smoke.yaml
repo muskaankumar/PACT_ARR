@@ -1,0 +1,13 @@
+# SMOKE TEST — 4 episodes. Run this first, always. Costs a few dollars and
+# catches every wiring error that would otherwise surface 100 episodes in.
+tasks: [fix-log-parser]
+models: [openrouter/anthropic/claude-opus-4.8]
+arms: [informed, uninformed]
+finalities: [never_reconsidered]
+personalizations: [impersonal]
+affordance_levels: [none]
+flaw_types: [overspecified]
+repetitions: 2
+harness: harbor
+dataset_path: derived_dataset
+n_concurrent: 2

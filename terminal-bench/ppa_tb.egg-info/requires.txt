@@ -1,0 +1,7 @@
+pyyaml>=6.0
+
+[analysis]
+matplotlib>=3.7
+
+[dev]
+pytest>=7.4

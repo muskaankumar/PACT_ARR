@@ -1,0 +1,62 @@
+# PPA Terminal-Bench v3 grid — mandatory submission + harder tasks
+#
+# Changes from v2 pilot:
+#   1. Goal framing requires `review submit` — agents must submit
+#   2. 5 harder tasks added (iterative, ambiguous criteria, multi-step)
+#   3. Session IDs are unique per task-arm pair (reviewer attribution)
+#   4. Backward-compatible: v2 pilot episodes tagged grid_version="v2_pilot"
+#
+# 15 tasks × 2 models × 2 arms × 3 reps = 180 episodes
+#
+# Cost estimate:
+#   Opus 4.6:  $5/$25 per M → ~$1.50/ep × 90 = ~$135
+#   GPT-5.6 Terra: $2/$12 per M → ~$0.70/ep × 90 = ~$63
+#   Total: ~$198 (within $250 budget)
+#
+# If over budget, drop to 2 reps on GPT (150 episodes, ~$170)
+
+tasks:
+  # --- original 10 (easy/medium) ---
+  - fix-log-parser
+  - configure-git-webserver
+  - filter-js-from-html
+  - git-leak-recovery
+  - kv-store-grpc
+  - log-summary-date-ranges
+  - nginx-request-logging
+  - openssl-selfsigned-cert
+  - large-scale-text-editing
+  - multi-source-data-merger
+  # --- 5 harder tasks (medium/hard, iterative) ---
+  - git-multibranch
+  - db-wal-recovery
+  - financial-document-processor
+  - cancel-async-tasks
+  - build-cython-ext
+
+models:
+  - openrouter/anthropic/claude-opus-4-6
+  - openrouter/openai/gpt-5.6-terra
+
+arms:
+  - informed
+  - uninformed
+
+finalities:
+  - never_reconsidered
+
+personalizations:
+  - impersonal
+
+affordance_levels:
+  - low
+
+flaw_types:
+  - overspecified
+
+repetitions: 3
+
+harness: harbor
+dataset_path: derived_dataset
+n_concurrent: 2
+jobs_dir: jobs

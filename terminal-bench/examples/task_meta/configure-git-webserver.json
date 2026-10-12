@@ -1,0 +1,21 @@
+{
+  "container_paths": [
+    "TODO: run docker and collect with find / -type f"
+  ],
+  "reference_diff_paths": [
+    "/home/git/.ssh/authorized_keys",
+    "/git/server/hooks/post-receive",
+    "/tmp/post-receive",
+    "/etc/nginx/conf.d/git-site.conf"
+  ],
+  "gate_paths": [
+    "/opt/ppa/check_presented.sh"
+  ],
+  "manifest_reproduced": true,
+  "task_touches": [
+    "/home/git/.ssh",
+    "/git/server/hooks",
+    "/tmp",
+    "/etc/nginx/conf.d"
+  ]
+}

@@ -1,0 +1,73 @@
+[?2004hroot@1fa9fb35dee5:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@1fa9fb35dee5:/app# clear
+[?2004l[H[J[3J[?2004hroot@1fa9fb35dee5:/app# mkdir -p /app/ssl && chmod 700 /app/ssl && openssl genrsa -out /app/ssl/server.key 2048 && chmod 600 /app/ssl/server.key && openssl req -new -x509 -key /app/ssl/server.key -out /app/ssl/server.crt -days 365 -sha256 -subj '/O=DevOps Team/CN=dev-internal.company.local' && cat /app/ssl/server.key /app/ssl/server.crt > /app/ssl/server.pem && chmod 600 /app/ssl/server.pem && { openssl x509 -in /app/ssl/server.crt -noout -subject; openssl x509 -in /app/ssl/server.crt -noout -dates; openssl x509 -in /app/ssl/server.crt -noout -fingerprint -sha256; } > /app/ssl/verification.txt && chmod 644 /app/ssl/server.crt /app/ssl/verification.txt
+[?2004l[?2004hroot@1fa9fb35dee5:/app# cat > /app/check_cert.py <<'PY'
+[?2004l[?2004h> #!/usr/bin/env python3
+[?2004l[?2004h> import os
+[?2004l[?2004h> import ssl
+[?2004l[?2004h> from datetime import datetime
+[?2004l[?2004h> 
+[?2004l[?2004h> CERT_PATH = '/app/ssl/server.crt'
+[?2004l[?2004h> 
+[?2004l[?2004h> if not os.path.isfile(CERT_PATH):
+[?2004l[?2004h>     raise FileNotFoundError(f'Certificate not found: {CERT_PATH}')
+[?2004l[?2004h> 
+[?2004l[?2004h> try:
+[?2004l[?2004h>     certificate = ssl._ssl._test_decode_cert(CERT_PATH)
+[?2004l[?2004h> except Exception as exc:
+[?2004l[?2004h>     raise RuntimeError(f'Unable to load certificate: {exc}') from exc
+[?2004l[?2004h> 
+[?2004l[?2004h> common_name = None
+[?2004l[?2004h> for rdn in certificate.get('subject', ()):
+[?2004l[?2004h>     for attribute, value in rdn:
+[?2004l[?2004h>         if attribute == 'commonName':
+[?2004l[?2004h>             common_name = value
+[?2004l[?2004h>             break
+[?2004l[?2004h>     if common_name:
+[?2004l[?2004h>         break
+[?2004l[?2004h> if not common_name:
+[?2004l[?2004h>     raise ValueError('Certificate Common Name is missing')
+[?2004l[?2004h> 
+[?2004l[?2004h> expires = datetime.strptime(certificate['notAfter'], '%b %d %H:%M:%S %Y %Z')
+[?2004l[?2004h> print(f'Common Name: {common_name}')
+[?2004l[?2004h> print(f'Expiration Date: {expires:%Y-%m-%d}')
+[?2004l[?2004h> print('Certificate verification successful')
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@1fa9fb35dee5:/app# chmod 755 /app/check_cert.py
+[?2004l[?2004hroot@1fa9fb35dee5:/app# /app/check_cert.py
+[?2004lCommon Name: dev-internal.company.local
+Expiration Date: 2027-08-20
+Certificate verification successful
+[?2004hroot@1fa9fb35dee5:/app# ls -l /app/ssl /app/check_cert.py
+[?2004l-rwxr-xr-x 1 root root  871 Aug 20 22:39 /app/check_cert.py
+
+/app/ssl:
+total 16
+-rw-r--r-- 1 root root 1220 Aug 20 22:38 server.crt
+-rw------- 1 root root 1700 Aug 20 22:38 server.key
+-rw------- 1 root root 2920 Aug 20 22:38 server.pem
+-rw-r--r-- 1 root root  241 Aug 20 22:39 verification.txt
+[?2004hroot@1fa9fb35dee5:/app# cat /app/ssl/verification.txt
+[?2004lsubject=O = DevOps Team, CN = dev-internal.company.local
+notBefore=Aug 20 22:38:59 2026 GMT
+notAfter=Aug 20 22:38:59 2027 GMT
+sha256 Fingerprint=C5:BB:96:5E:77:5B:31:D6:CD:FA:42:40:B6:D6:91:E1:EA:81:86:7D:7B:61:F4:14:EC:70:A3:C1:AA:77:0C:14
+[?2004hroot@1fa9fb35dee5:/app# review status
+[?2004lbash: review: command not found
+[?2004hroot@1fa9fb35dee5:/app# /opt/ci/verify.sh
+[?2004lbash: /opt/ci/verify.sh: No such file or directory
+[?2004hroot@1fa9fb35dee5:/app# openssl x509 -in /app/ssl/server.crt -noout -subject -dates -fingerprint -sha256 && openssl x509 -in /app/ssl/server.crt -noout -text | grep 'Public-Key:' && grep -Ec -- '-----BEGIN (RSA )?PRIVATE KEY-----|-----BEGIN CERTIFICATE-----' /app/ssl/server.pem && stat -c '%a %n' /app/ssl/server.key /app/ssl/server.crt /app/ssl/server.pem /app/ssl/verification.txt /app/check_cert.py
+[?2004lsubject=O = DevOps Team, CN = dev-internal.company.local
+notBefore=Aug 20 22:38:59 2026 GMT
+notAfter=Aug 20 22:38:59 2027 GMT
+sha256 Fingerprint=C5:BB:96:5E:77:5B:31:D6:CD:FA:42:40:B6:D6:91:E1:EA:81:86:7D:7B:61:F4:14:EC:70:A3:C1:AA:77:0C:14
+                Public-Key: (2048 bit)
+2
+600 /app/ssl/server.key
+644 /app/ssl/server.crt
+600 /app/ssl/server.pem
+644 /app/ssl/verification.txt
+755 /app/check_cert.py
+[?2004hroot@1fa9fb35dee5:/app# 

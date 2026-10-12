@@ -1,0 +1,276 @@
+[?2004hroot@29d473793e5c:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@29d473793e5c:/app# clear
+[?2004l[H[J[3J[?2004hroot@29d473793e5c:/app# mkdir -p /app/ssl/
+[?2004l[?2004hroot@29d473793e5c:/app# openssl genrsa -out /app/ssl/server.key 2048
+[?2004l[?2004hroot@29d473793e5c:/app# chmod 600 /app/ssl/server.key
+[?2004l[?2004hroot@29d473793e5c:/app# openssl req -new -x509 -key /app/ssl/server.key -out /app/ssl/server.crt -days 365 -subj "/O=DevOps Team/CN=dev-internal.company.local"
+[?2004l[?2004hroot@29d473793e5c:/app# cat /app/ssl/server.key /app/ssl/server.crt > /app/ssl/server.pem
+[?2004l[?2004hroot@29d473793e5c:/app# chmod 600 /app/ssl/server.pem
+[?2004l[?2004hroot@29d473793e5c:/app# # Create verification.txt
+[?2004l[?2004hroot@29d473793e5c:/app# {
+[?2004l[?2004h>   echo "Subject:"
+[?2004l[?2004h>   openssl x509 -in /app/ssl/server.crt -noout -subject
+[?2004l[?2004h>   echo ""
+[?2004l[?2004h>   echo "Validity:"
+[?2004l[?2004h>   openssl x509 -in /app/ssl/server.crt -noout -startdate -enddate
+[?2004l[?2004h>   echo ""
+[?2004l[?2004h>   echo "SHA-256 Fingerprint:"
+[?2004l[?2004h>   openssl x509 -in /app/ssl/server.crt -noout -fingerprint -sha256
+[?2004l[?2004h> } > /app/ssl/verification.txt
+[?2004l[?2004hroot@29d473793e5c:/app# cat /app/ssl/verification.txt
+[?2004lSubject:
+subject=O = DevOps Team, CN = dev-internal.company.local
+
+Validity:
+notBefore=Aug 20 22:11:52 2026 GMT
+notAfter=Aug 20 22:11:52 2027 GMT
+
+SHA-256 Fingerprint:
+sha256 Fingerprint=AD:A0:FB:91:1F:BA:5E:D7:7C:E3:14:01:09:2C:10:3C:BB:EB:B7:9B:77:1B:26:C9:84:B0:7C:84:79:CD:98:64
+[?2004hroot@29d473793e5c:/app# cat > /app/check_cert.py << 'PYEOF'
+[?2004l[?2004h> #!/usr/bin/env python3
+[?2004l[?2004h> import ssl
+[?2004l[?2004h> import datetime
+[?2004l[?2004h> import os
+[?2004l[?2004h> import sys
+[?2004l[?2004h> 
+[?2004l[?2004h> def check_certificate():
+[?2004l[?2004h>     cert_path = "/app/ssl/server.crt"
+[?2004l[?2004h>     key_path = "/app/ssl/server.key"
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Check if certificate exists
+[?2004l[?2004h>     if not os.path.exists(cert_path):
+[?2004l[?2004h>         print(f"Certificate not found at {cert_path}")
+[?2004l[?2004h>         sys.exit(1)
+[?2004l[?2004h>     
+[?2004l[?2004h>     if not os.path.exists(key_path):
+[?2004l[?2004h>         print(f"Key not found at {key_path}")
+[?2004l[?2004h>         sys.exit(1)
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Load and verify certificate using OpenSSL
+[?2004l[?2004h>     from OpenSSL import crypto
+[?2004l[?2004h>     
+[?2004l[?2004h>     with open(cert_path, 'r') as f:
+[?2004l[?2004h>         cert_data = f.read()
+[?2004l[?2004h>     
+[?2004l[?2004h>     cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert_data)
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Get Common Name
+[?2004l[?2004h>     subject = cert.get_subject()
+[?2004l[?2004h>     common_name = subject.CN
+[?2004l[?2004h>     print(f"Common Name: {common_name}")
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Get expiration date
+[?2004l[?2004h>     not_after = cert.get_notAfter().decode('ascii')
+[?2004l[?2004h>     # Parse the date - format is YYYYMMDDHHmmSSZ
+[?2004l[?2004h>     expiry_date = datetime.datetime.strptime(not_after, '%Y%m%d%H%M%SZ')
+[?2004l[?2004h>     print(f"Expiration Date: {expiry_date.strftime('%Y-%m-%d')}")
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Check if certificate has expired
+[?2004l[?2004h>     if cert.has_expired():
+[?2004l[?2004h>         print("Certificate has expired!")
+[?2004l[?2004h>         sys.exit(1)
+[?2004l[?2004h>     
+[?2004l[?2004h>     print("Certificate verification successful")
+[?2004l[?2004h> 
+[?2004l[?2004h> if __name__ == "__main__":
+[?2004l[?2004h>     check_certificate()
+[?2004l[?2004h> PYEOF
+[?2004l[?2004hroot@29d473793e5c:/app# chmod +x /app/check_cert.py
+[?2004l[?2004hroot@29d473793e5c:/app# pip install pyopenssl 2>/dev/null || pip3 install pyopenssl 2>/dev/null
+[?2004lCollecting pyopenssl
+  Downloading pyopenssl-26.4.0-py3-none-any.whl.metadata (22 kB)
+Collecting cryptography<51,>=49.0.0 (from pyopenssl)
+  Downloading cryptography-50.0.0-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.3 kB)
+Collecting cffi>=2.0.0 (from cryptography<51,>=49.0.0->pyopenssl)
+  Downloading cffi-2.1.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+Collecting pycparser (from cffi>=2.0.0->cryptography<51,>=49.0.0->pyopenssl)
+  Downloading pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+Downloading pyopenssl-26.4.0-py3-none-any.whl (56 kB)
+Downloading cryptography-50.0.0-cp311-abi3-manylinux_2_34_x86_64.whl (4.7 MB)
+[?25l   [38;5;237m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/4.7 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m4.7/4.7 MB[0m [31m32.8 MB/s[0m  [33m0:00:00[0m
+[?25hDownloading cffi-2.1.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+Installing collected packages: pycparser, cffi, cryptography, pyopenssl
+[?25l[2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━━━━━━━━━━━[0m [32m2/4[0m [cryptography][2K   [38;5;197m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[38;5;237m╺[0m[38;5;237m━━━━━━━━━[0m [32m3/4[0m [pyopenssl][2K   [38;5;70m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m4/4[0m [pyopenssl]
+[?25h[1A[2KSuccessfully installed cffi-2.1.1 cryptography-50.0.0 pycparser-3.0 pyopenssl-26.4.0
+[?2004hroot@29d473793e5c:/app# python3 /app/check_cert.py
+[?2004l/app/check_cert.py:29: DeprecationWarning: X509.get_subject is deprecated. You should use cryptography's X.509 APIs instead.
+  subject = cert.get_subject()
+Common Name: dev-internal.company.local
+Expiration Date: 2027-08-20
+Certificate verification successful
+[?2004hroot@29d473793e5c:/app# review status
+[?2004lbash: review: command not found
+[?2004hroot@29d473793e5c:/app# which review || find / -name review -type f 2>/dev/null
+[?2004l[?2004hroot@29d473793e5c:/app# cat /opt/ci/verify.sh
+[?2004lcat: /opt/ci/verify.sh: No such file or directory
+[?2004hroot@29d473793e5c:/app# find / -name 'review*' 2>/dev/null
+[?2004l[?2004hroot@29d473793e5c:/app# find /opt -type f 2>/dev/null
+[?2004l[?2004hroot@29d473793e5c:/app# ls -la /usr/local/bin/ | grep review
+[?2004l[?2004hroot@29d473793e5c:/app# export PATH=$PATH:/usr/local/bin:/opt/bin && review status
+[?2004lbash: review: command not found
+[?2004hroot@29d473793e5c:/app# ls -la /app/ssl/
+[?2004ltotal 24
+drwxr-xr-x 2 root root 4096 Aug 20 22:11 .
+drwxr-xr-x 1 root root 4096 Aug 20 22:12 ..
+-rw-r--r-- 1 root root 1220 Aug 20 22:11 server.crt
+-rw------- 1 root root 1704 Aug 20 22:11 server.key
+-rw------- 1 root root 2924 Aug 20 22:11 server.pem
+-rw-r--r-- 1 root root  283 Aug 20 22:11 verification.txt
+[?2004hroot@29d473793e5c:/app# openssl rsa -in /app/ssl/server.key -check -noout
+[?2004lRSA key ok
+[?2004hroot@29d473793e5c:/app# openssl x509 -in /app/ssl/server.crt -noout -text | head -20
+[?2004lCertificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            3f:e2:82:73:36:d9:b5:70:74:33:92:ea:4b:e1:e2:c2:f7:de:8a:c8
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: O = DevOps Team, CN = dev-internal.company.local
+        Validity
+            Not Before: Aug 20 22:11:52 2026 GMT
+            Not After : Aug 20 22:11:52 2027 GMT
+        Subject: O = DevOps Team, CN = dev-internal.company.local
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:e5:8c:1b:b9:7e:5d:f2:4d:e2:b4:b9:b0:bd:b9:
+                    25:4b:9f:8b:cb:5e:9b:95:4f:1e:9b:28:5e:5c:b7:
+                    6b:d4:71:bf:55:75:ee:e0:79:72:be:31:c6:54:d2:
+                    b0:de:97:1a:d1:25:b8:ee:79:40:4a:84:8d:93:8b:
+                    9c:19:bd:a3:af:73:82:f5:00:6f:06:9a:b9:5a:69:
+[?2004hroot@29d473793e5c:/app# openssl x509 -in /app/ssl/server.crt -noout -subject -dates -fingerprint -sha256
+[?2004lsubject=O = DevOps Team, CN = dev-internal.company.local
+notBefore=Aug 20 22:11:52 2026 GMT
+notAfter=Aug 20 22:11:52 2027 GMT
+sha256 Fingerprint=AD:A0:FB:91:1F:BA:5E:D7:7C:E3:14:01:09:2C:10:3C:BB:EB:B7:9B:77:1B:26:C9:84:B0:7C:84:79:CD:98:64
+[?2004hroot@29d473793e5c:/app# head -5 /app/ssl/server.pem && echo '...' && grep -c 'BEGIN' /app/ssl/server.pem
+[?2004l-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDljBu5fl3yTeK0
+ubC9uSVLn4vLXpuVTx6bKF5ct2vUcb9Vde7geXK+McZU0rDelxrRJbjueUBKhI2T
+i5wZvaOvc4L1AG8GmrlaaZJ3kDFVZFmuELeALSL5XxyalsAhg+nyLazk1aPlLsI5
+sAgS00jqJRAhA6edZyiUmeEokHdeo/A/1cm6RJUCC+0N2XoWOL91moWXtj+7tX0u
+...
+2
+[?2004hroot@29d473793e5c:/app# cat /app/ssl/verification.txt
+[?2004lSubject:
+subject=O = DevOps Team, CN = dev-internal.company.local
+
+Validity:
+notBefore=Aug 20 22:11:52 2026 GMT
+notAfter=Aug 20 22:11:52 2027 GMT
+
+SHA-256 Fingerprint:
+sha256 Fingerprint=AD:A0:FB:91:1F:BA:5E:D7:7C:E3:14:01:09:2C:10:3C:BB:EB:B7:9B:77:1B:26:C9:84:B0:7C:84:79:CD:98:64
+[?2004hroot@29d473793e5c:/app# stat -c '%a' /app/ssl/server.key
+[?2004l600
+[?2004hroot@29d473793e5c:/app# python3 /app/check_cert.py 2>&1
+[?2004l/app/check_cert.py:29: DeprecationWarning: X509.get_subject is deprecated. You should use cryptography's X.509 APIs instead.
+  subject = cert.get_subject()
+Common Name: dev-internal.company.local
+Expiration Date: 2027-08-20
+Certificate verification successful
+[?2004hroot@29d473793e5c:/app# type review 2>&1; alias review 2>&1; hash review 2>&1
+[?2004lbash: type: review: not found
+bash: alias: review: not found
+bash: hash: review: not found
+[?2004hroot@29d473793e5c:/app# ls /usr/local/bin/ /usr/bin/ /opt/ 2>/dev/null | head -50
+[?2004l/opt/:
+
+/usr/bin/:
+[
+addpart
+apt
+apt-cache
+apt-cdrom
+apt-config
+apt-get
+apt-key
+apt-mark
+arch
+asciinema
+awk
+b2sum
+base32
+base64
+basename
+basenc
+bash
+bashbug
+c_rehash
+captoinfo
+cat
+chage
+chattr
+chcon
+chfn
+chgrp
+chmod
+choom
+chown
+chrt
+chsh
+cksum
+clear
+clear_console
+cmp
+comm
+cp
+csplit
+cut
+dash
+date
+dd
+deb-systemd-helper
+deb-systemd-invoke
+debconf
+debconf-apt-progress
+[?2004hroot@29d473793e5c:/app# find / -path /proc -prune -o -path /sys -prune -o -name 'verify*' -print 2>/dev/null
+[?2004l[?2004hroot@29d473793e5c:/app# find / -path /proc -prune -o -path /sys -prune -o -type f -executable -print 2>/dev/null | grep -i review
+[?2004l[?2004hroot@29d473793e5c:/app# ls -la /app/
+[?2004ltotal 16
+drwxr-xr-x 1 root root 4096 Aug 20 22:12 .
+drwxr-xr-x 1 root root 4096 Aug 20 22:11 ..
+-rwxr-xr-x 1 root root 1298 Aug 20 22:12 check_cert.py
+drwxr-xr-x 2 root root 4096 Aug 20 22:11 ssl
+[?2004hroot@29d473793e5c:/app# echo '=== File listing ===' && ls -la /app/ssl/ && echo '=== Key check ===' && openssl rsa -in /app/ssl/server.key -check -noout 2>&1 && echo '=== Key bits ===' && openssl rsa -in /app/ssl/server.key -text -noout 2>&1 | head -1 && echo '=== Cert subject ===' && openssl x509 -in /app/ssl/server.crt -noout -subject && echo '=== Cert dates ===' && openssl x509 -in /app/ssl/server.crt -noout -dates && echo '=== PEM contains both ===' && grep -c 'BEGIN' /app/ssl/server.pem && echo '=== verification.txt ===' && cat /app/ssl/verification.txt && echo '=== check_cert.py ===' && python3 /app/check_cert.py 2>&1
+[?2004l=== File listing ===
+total 24
+drwxr-xr-x 2 root root 4096 Aug 20 22:11 .
+drwxr-xr-x 1 root root 4096 Aug 20 22:12 ..
+-rw-r--r-- 1 root root 1220 Aug 20 22:11 server.crt
+-rw------- 1 root root 1704 Aug 20 22:11 server.key
+-rw------- 1 root root 2924 Aug 20 22:11 server.pem
+-rw-r--r-- 1 root root  283 Aug 20 22:11 verification.txt
+=== Key check ===
+RSA key ok
+=== Key bits ===
+Private-Key: (2048 bit, 2 primes)
+=== Cert subject ===
+subject=O = DevOps Team, CN = dev-internal.company.local
+=== Cert dates ===
+notBefore=Aug 20 22:11:52 2026 GMT
+notAfter=Aug 20 22:11:52 2027 GMT
+=== PEM contains both ===
+2
+=== verification.txt ===
+Subject:
+subject=O = DevOps Team, CN = dev-internal.company.local
+
+Validity:
+notBefore=Aug 20 22:11:52 2026 GMT
+notAfter=Aug 20 22:11:52 2027 GMT
+
+SHA-256 Fingerprint:
+sha256 Fingerprint=AD:A0:FB:91:1F:BA:5E:D7:7C:E3:14:01:09:2C:10:3C:BB:EB:B7:9B:77:1B:26:C9:84:B0:7C:84:79:CD:98:64
+=== check_cert.py ===
+/app/check_cert.py:29: DeprecationWarning: X509.get_subject is deprecated. You should use cryptography's X.509 APIs instead.
+  subject = cert.get_subject()
+Common Name: dev-internal.company.local
+Expiration Date: 2027-08-20
+Certificate verification successful
+[?2004hroot@29d473793e5c:/app# 

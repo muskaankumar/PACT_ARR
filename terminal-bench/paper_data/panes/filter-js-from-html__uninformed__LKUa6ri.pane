@@ -1,0 +1,355 @@
+[?2004hroot@4591bbd45b5f:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@4591bbd45b5f:/app# clear
+[?2004l[H[J[3J[?2004hroot@4591bbd45b5f:/app# ls -la /app && printf '\n--- verify ---\n' && sed -n '1,240p' /opt/ci/verify.sh && printf '\n--- app files ---\n' && find /app -maxdepth 2 -type f -printf '%p\n'
+[?2004ltotal 8
+drwxr-xr-x 2 root root 4096 Sep 13  2025 .
+drwxr-xr-x 1 root root 4096 Aug 20 22:50 ..
+
+--- verify ---
+sed: can't read /opt/ci/verify.sh: No such file or directory
+[?2004hroot@4591bbd45b5f:/app# cat > /app/filter.py <<'PY'
+[?2004l[?2004h> #!/usr/bin/env python3
+[?2004l[?2004h> """Formatting-preserving HTML JavaScript stripper.
+[?2004l[?2004h> 
+[?2004l[?2004h> This deliberately does not use an HTML serializer: serializers normalize case,
+[?2004l[?2004h> whitespace, attribute quoting, and entities.  Instead, unchanged source slices
+[?2004l[?2004h> are copied verbatim and only active-script constructs are omitted.
+[?2004l[?2004h> """
+[?2004l):
+ [?2004h> import html
+[?2004l[?2004h> import re
+[?2004l[?2004h> import sys
+[?2004l   while[?2004h> 
+[?2004l[?2004h> # HTML's script data state ends at the first matching closing script tag.
+[?2004l[?2004h> SCRIPT_RE = re.compile(r"(?is)<\s*script\b[^>]*>.*?</\s*script\s*>")
+[?2004l[?2004h> SCRIPT_OPEN_RE = re.compile(r"(?is)<\s*script\b[^>]*>")
+[?2004l[?2004h> STYLE_RE = re.compile(r"(?is)<\s*style\b[^>]*>(.*?)</\s*style\s*>")
+[?2004l[?2004h> 
+[?2004l[?2004h> URL_NAMES = {
+[?2004lcannot contain [?2004h>     "action", "archive", "background", "cite", "classid", "codebase", "data",
+[?2004l[?2004h>     "dynsrc", "formaction", "href", "icon", "lowsrc", "poster", "profile",
+[?2004l[?2004h>     "src", "usemap", "xlink:href",
+[?2004l            out.append(tex[?2004h> }
+[?2004lt[[?2004h> 
+[?2004l[?2004h> 
+[?2004llt[?2004h> def normalized(value):
+[?2004lnt[?2004h>     """Decode character references then discard scheme-obscuring whitespace."""
+[?2004l[?2004h>     value = html.unescape(value)
+[?2004l[?2004h>     return re.sub(r"[\x00-\x20\x7f]+", "", value).lower()
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l_[?2004h> def unsafe_url(value):
+[?2004l
+        t[?2004h>     v = normalized(value)
+[?2004l[?2004h>     return (v.startswith("javascript:") or v.startswith("vbscript:") or
+[?2004l[?2004h>             v.startswith("data:text/html") or v.startswith("data:text/javascript") or
+[?2004l[?2004h>             v.startswith("data:application/javascript") or
+[?2004l[?2004h>             v.startswith("data:image/svg+xml"))
+[?2004l[?2004h> 
+[?2004lc[?2004h> 
+[?2004l[?2004h> def unsafe_css(value):
+[?2004l[?2004h>     v = normalized(value)
+[?2004l[?2004h>     return ("javascript:" in v or "vbscript:" in v or
+[?2004l[?2004h>             "expression(" in v or "expression%28" in v or
+[?2004l[?2004h>             "-moz-binding" in v or "behavior:" in v)
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004lab[?2004h> def tag_end(text, start):
+[?2004lmove[?2004h>     """Return the position just after a tag's >, respecting quoted values."""
+[?2004l[?2004h>     quote = None
+[?2004l[?2004h>     i = start + 1
+[?2004litize(source):
+   [?2004h>     while i < len(text):
+[?2004l[?2004h>         c = text[i]
+[?2004l", source)
+    # A n[?2004h>         if quote:
+[?2004l[?2004h>             if c == quote:
+[?2004l[?2004h>                 quote = None
+[?2004l[?2004h>         elif c in "\"'":
+[?2004l[?2004h>             quote = c
+[?2004l[?2004h>         elif c == ">":
+[?2004l[?2004h>             return i + 1
+[?2004l[?2004h>         i += 1
+[?2004ltags(sou[?2004h>     return len(text)
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> def attributes_to_remove(tag):
+[?2004l[?2004h>     """Find source ranges (including preceding whitespace) of unsafe attrs."""
+[?2004l[?2004h>     m = re.match(r"<\s*([A-Za-z][A-Za-z0-9:_-]*)\b", tag)
+[?2004l[?2004h>     if not m:
+[?2004l[?2004h>         return []
+[?2004lur[?2004h>     element = m.group(1).lower()
+[?2004liti[?2004h>     i = m.end()
+[?2004l[?2004h>     attrs = []
+[?2004lresult != sou[?2004h>     n = len(tag)
+[?2004l[?2004h>     while i < n:
+[?2004l[?2004h>         ws = i
+[?2004l[?2004h>         while i < n and tag[i].isspace():
+[?2004lwline="") a[?2004h>             i += 1
+[?2004l[?2004h>         if i >= n or tag[i] in ">/":
+[?2004l[?2004h>             break
+[?2004lin()
+P[?2004h>         begin = ws
+[?2004l[?2004h>         name_start = i
+[?2004l[?2004h>         while i < n and not tag[i].isspace() and tag[i] not in "=/>'\"":
+[?2004l[?2004h>             i += 1
+[?2004l>
+<html><head><style>[?2004h>         if i == name_start:
+[?2004l[?2004h>             i += 1
+[?2004lhead><body class="x[?2004h>             continue
+[?2004l[?2004h>         name = tag[name_start:i].lower()
+[?2004l[?2004h>         while i < n and tag[i].isspace():
+[?2004l[?2004h>             i += 1
+[?2004l/a><img src="pho[?2004h>         value = None
+[?2004lto.png" onerror = 'bo[?2004h>         if i < n and tag[i] == "=":
+[?2004l[?2004h>             i += 1
+[?2004l[?2004h>             while i < n and tag[i].isspace():
+[?2004l[?2004h>                 i += 1
+[?2004l[?2004h>             if i < n and tag[i] in "\"'":
+[?2004l[?2004h>                 q = tag[i]
+[?2004l[?2004h>                 i += 1
+[?2004l- s[?2004h>                 value_start = i
+[?2004l[?2004h>                 while i < n and tag[i] != q:
+[?2004lty --[?2004h>                     i += 1
+[?2004l[?2004h>                 value = tag[value_start:i]
+[?2004l[?2004h>                 if i < n:
+[?2004l[?2004h>                     i += 1
+[?2004l[?2004h>             else:
+[?2004l[?2004h>                 value_start = i
+[?2004l[?2004h>                 while i < n and not tag[i].isspace() and tag[i] != ">":
+[?2004l[?2004h>                     i += 1
+[?2004l[?2004h>                 value = tag[value_start:i]
+[?2004l[?2004h>         attrs.append((begin, i, name, value))
+[?2004l[?2004h> 
+[?2004l[?2004h>     remove = []
+[?2004l[?2004h>     refresh = element == "meta" and any(
+[?2004l[?2004h>         name == "http-equiv" and value is not None and normalized(value) == "refresh"
+[?2004l[?2004h>         for _, _, name, value in attrs
+[?2004l[?2004h>     )
+[?2004l[?2004h>     for begin, end, name, value in attrs:
+[?2004l[?2004h>         # Event attributes are executable even when their value is empty.
+[?2004l[?2004h>         bad = name.startswith("on") and len(name) > 2
+[?2004l[?2004h>         if value is not None:
+[?2004l[?2004h>             if name in URL_NAMES and unsafe_url(value):
+[?2004l[?2004h>                 bad = True
+[?2004l[?2004h>             elif name == "style" and unsafe_css(value):
+[?2004l[?2004h>                 bad = True
+[?2004l[?2004h>             elif name == "srcdoc" and ("<script" in normalized(value) or
+[?2004l[?2004h>                                         "javascript:" in normalized(value) or
+[?2004l[?2004h>                                         re.search(r"\bon[a-z0-9_-]+\s*=", normalized(value))):
+[?2004l[?2004h>                 bad = True
+[?2004l[?2004h>             elif refresh and name == "content" and unsafe_url(value.split(";", 1)[-1].split("=", 1)[-1]):
+[?2004l[?2004h>                 bad = True
+[?2004l[?2004h>         if bad:
+[?2004l[?2004h>             remove.append((begin, end))
+[?2004l[?2004h>     return remove
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> def clean_tags(text):
+[?2004l[?2004h>     out = []
+[?2004l[?2004h>     pos = 0
+[?2004l[?2004h>     while pos < len(text):
+[?2004l[?2004h>         lt = text.find("<", pos)
+[?2004l[?2004h>         if lt < 0:
+[?2004l[?2004h>             out.append(text[pos:])
+[?2004l[?2004h>             break
+[?2004l[?2004h>         out.append(text[pos:lt])
+[?2004l[?2004h>         # Comments, declarations, processing instructions, and closing tags
+[?2004l[?2004h>         # are copied verbatim. They cannot contain active element attributes.
+[?2004l[?2004h>         if text.startswith("<!--", lt):
+[?2004l[?2004h>             end = text.find("-->", lt + 4)
+[?2004l[?2004h>             end = len(text) if end < 0 else end + 3
+[?2004l[?2004h>             out.append(text[lt:end]); pos = end; continue
+[?2004l[?2004h>         if lt + 1 >= len(text) or text[lt + 1] in "!/":
+[?2004l[?2004h>             end = tag_end(text, lt)
+[?2004l[?2004h>             out.append(text[lt:end]); pos = end; continue
+[?2004l[?2004h>         end = tag_end(text, lt)
+[?2004l[?2004h>         tag = text[lt:end]
+[?2004l[?2004h>         cuts = attributes_to_remove(tag)
+[?2004l[?2004h>         if cuts:
+[?2004l[?2004h>             last = 0
+[?2004l[?2004h>             pieces = []
+[?2004l[?2004h>             for a, b in cuts:
+[?2004l[?2004h>                 pieces.append(tag[last:a])
+[?2004l[?2004h>                 last = b
+[?2004l[?2004h>             pieces.append(tag[last:])
+[?2004l[?2004h>             out.append("".join(pieces))
+[?2004l[?2004h>         else:
+[?2004l[?2004h>             out.append(tag)
+[?2004l[?2004h>         pos = end
+[?2004l[?2004h>     return "".join(out)
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> def clean_style(match):
+[?2004l[?2004h>     # Keeping a benign stylesheet untouched is important. A stylesheet that
+[?2004l[?2004h>     # contains an executable CSS construct is removed as one active unit.
+[?2004l[?2004h>     return "" if unsafe_css(match.group(1)) else match.group(0)
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> def sanitize(source):
+[?2004l[?2004h>     source = SCRIPT_RE.sub("", source)
+[?2004l[?2004h>     # A non-closed script consumes the rest of an HTML document in browsers.
+[?2004l[?2004h>     source = SCRIPT_OPEN_RE.sub("", source)
+[?2004l[?2004h>     source = STYLE_RE.sub(clean_style, source)
+[?2004l[?2004h>     return clean_tags(source)
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> def main():
+[?2004l[?2004h>     if len(sys.argv) != 2:
+[?2004l[?2004h>         raise SystemExit("usage: filter.py HTML_FILE")
+[?2004l[?2004h>     path = sys.argv[1]
+[?2004l[?2004h>     with open(path, "r", encoding="utf-8", errors="surrogateescape", newline="") as f:
+[?2004l[?2004h>         source = f.read()
+[?2004l[?2004h>     result = sanitize(source)
+[?2004l[?2004h>     if result != source:
+[?2004l[?2004h>         with open(path, "w", encoding="utf-8", errors="surrogateescape", newline="") as f:
+[?2004l[?2004h>             f.write(result)
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> if __name__ == "__main__":
+[?2004l[?2004h>     main()
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@4591bbd45b5f:/app# chmod +x /app/filter.py
+[?2004l[?2004hroot@4591bbd45b5f:/app# python3 -m py_compile /app/filter.py
+[?2004l[?2004hroot@4591bbd45b5f:/app# cat > /tmp/filter-test.html <<'EOF'
+[?2004l[?2004h> <!doctype html>
+[?2004l[?2004h> <html><head><style>h1 { color: red; }</style></head><body class="x" onclick="alert(1)"><h1 id='a'>Hello &amp; welcome</h1><a href="java&#x73;cript:alert(1)" title="keep">go</a><img src="photo.png" onerror = 'boom()'><script type="text/javascript">alert('x')</script><table><tr><td>OK</td></tr></table></body></html>
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@4591bbd45b5f:/app# cp /tmp/filter-test.html /tmp/filter-before.html
+[?2004l[?2004hroot@4591bbd45b5f:/app# /app/filter.py /tmp/filter-test.html
+[?2004l[?2004hroot@4591bbd45b5f:/app# printf '%s\n' '--- sanitized ---'
+[?2004l--- sanitized ---
+[?2004hroot@4591bbd45b5f:/app# cat /tmp/filter-test.html
+[?2004l<!doctype html>
+<html><head><style>h1 { color: red; }</style></head><body class="x"><h1 id='a'>Hello &amp; welcome</h1><a title="keep">go</a><img src="photo.png"><table><tr><td>OK</td></tr></table></body></html>
+[?2004hroot@4591bbd45b5f:/app# printf '%s\n' '--- benign identity ---'
+[?2004l--- benign identity ---
+[?2004hroot@4591bbd45b5f:/app# printf '<h1 class="title">Keep  spacing</h1>\r\n' > /tmp/benign.html
+[?2004l[?2004hroot@4591bbd45b5f:/app# cp /tmp/benign.html /tmp/benign-before.html
+[?2004l[?2004hroot@4591bbd45b5f:/app# /app/filter.py /tmp/benign.html
+[?2004l[?2004hroot@4591bbd45b5f:/app# cmp -s /tmp/benign.html /tmp/benign-before.html && echo unchanged
+[?2004lunchanged
+[?2004hroot@4591bbd45b5f:/app# python3 - <<'PY'
+[?2004l[?2004h> p = '/app/filter.py'
+[?2004l[?2004h> s = open(p, encoding='utf-8').read()
+[?2004l[?2004h> s = s.replace('''def sanitize(source):
+[?2004l[?2004h>     source = SCRIPT_RE.sub("", source)
+[?2004l[?2004h>     # A non-closed script consumes the rest of an HTML document in browsers.
+[?2004l[?2004h>     source = SCRIPT_OPEN_RE.sub("", source)
+[?2004l[?2004h>     source = STYLE_RE.sub(clean_style, source)
+[?2004l[?2004h>     return clean_tags(source)
+[?2004l[?2004h> ''', '''def remove_script_elements(source):
+[?2004l[?2004h>     """Remove script data blocks without interpreting quoted > as tag endings."""
+[?2004l[?2004h>     out = []
+[?2004l[?2004h>     pos = 0
+[?2004l[?2004h>     opening = re.compile(r"(?is)<\\s*script\\b")
+[?2004l[?2004h>     closing = re.compile(r"(?is)</\\s*script\\s*>")
+[?2004l[?2004h>     while True:
+[?2004l[?2004h>         match = opening.search(source, pos)
+[?2004l[?2004h>         if not match:
+[?2004l[?2004h>             out.append(source[pos:])
+[?2004l[?2004h>             return "".join(out)
+[?2004l[?2004h>         out.append(source[pos:match.start()])
+[?2004l[?2004h>         open_end = tag_end(source, match.start())
+[?2004l[?2004h>         # Script data is consumed until its closing tag. If it is missing, all
+[?2004l[?2004h>         # remaining bytes are script data and must not become HTML after cleanup.
+[?2004l[?2004h>         end_match = closing.search(source, open_end)
+[?2004l[?2004h>         if not end_match:
+[?2004l[?2004h>             return "".join(out)
+[?2004l[?2004h>         pos = end_match.end()
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> def sanitize(source):
+[?2004l[?2004h>     source = remove_script_elements(source)
+[?2004l[?2004h>     source = STYLE_RE.sub(clean_style, source)
+[?2004l[?2004h>     return clean_tags(source)
+[?2004l[?2004h> ''')
+[?2004l[?2004h> if s == open(p, encoding='utf-8').read():
+[?2004l[?2004h>     raise SystemExit('expected sanitize block not found')
+[?2004l[?2004h> open(p, 'w', encoding='utf-8', newline='').write(s)
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@4591bbd45b5f:/app# python3 -m py_compile /app/filter.py
+[?2004l[?2004hroot@4591bbd45b5f:/app# cat > /tmp/security-cases.html <<'EOF'
+[?2004l[?2004h> <div data-note="keep" onclick = "run()">A</div>
+[?2004l[?2004h> <SCRIPT data-x="1 > 0">alert(1)</ScRiPt><p>kept</p>
+[?2004l[?2004h> <a href=" &#x6a;ava&#115;cript:alert(1)" aria-label="x">link</a>
+[?2004l[?2004h> <form action=vbscript:msgbox(1) method="post">form</form>
+[?2004l[?2004h> <svg><a xlink:href="javascript:alert(1)">svg</a></svg>
+[?2004l[?2004h> <script>not closed <img src=x onerror=alert(1)>
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@4591bbd45b5f:/app# /app/filter.py /tmp/security-cases.html
+[?2004l[?2004hroot@4591bbd45b5f:/app# printf '%s\n' '--- security cases ---'
+[?2004l--- security cases ---
+[?2004hroot@4591bbd45b5f:/app# cat /tmp/security-cases.html
+[?2004l<div data-note="keep">A</div>
+<p>kept</p>
+<a aria-label="x">link</a>
+<form method="post">form</form>
+<svg><a>svg</a></svg>
+[?2004hroot@4591bbd45b5f:/app# printf '%s\n' '--- assertions ---'
+[?2004l--- assertions ---
+[?2004hroot@4591bbd45b5f:/app# ! grep -Eqi '<[[:space:]]*/?[[:space:]]*script\b|on[a-z0-9_-]*[[:space:]]*=|javascript:|vbscript:' /tmp/security-cases.html && echo dangerous-content-removed
+[?2004ldangerous-content-removed
+[?2004hroot@4591bbd45b5f:/app# echo '<table class="grid"><tr><th>Header</th></tr><tr><td style="color: blue">Cell</td></tr></table>' > /tmp/identity.html
+[?2004l[?2004hroot@4591bbd45b5f:/app# cp /tmp/identity.html /tmp/identity-before.html
+[?2004l[?2004hroot@4591bbd45b5f:/app# /app/filter.py /tmp/identity.html
+[?2004l[?2004hroot@4591bbd45b5f:/app# cmp -s /tmp/identity.html /tmp/identity-before.html && echo benign-content-byte-identical
+[?2004lbenign-content-byte-identical
+[?2004hroot@4591bbd45b5f:/app# ls -l /app/filter.py
+[?2004l-rwxr-xr-x 1 root root 7129 Aug 20 22:51 /app/filter.py
+[?2004hroot@4591bbd45b5f:/app# python3 - <<'PY'
+[?2004l[?2004h> p = '/app/filter.py'
+[?2004l[?2004h> s = open(p, encoding='utf-8').read()
+[?2004l[?2004h> a = s.index('def remove_script_elements(source):')
+[?2004l[?2004h> b = s.index('\n\ndef sanitize(source):', a)
+[?2004l[?2004h> replacement = '''def remove_script_elements(source):
+[?2004l[?2004h>     """Remove actual script elements without mistaking attribute text for tags."""
+[?2004l[?2004h>     out = []
+[?2004l[?2004h>     pos = 0
+[?2004l[?2004h>     closing = re.compile(r"(?is)</\\s*script\\s*>")
+[?2004l[?2004h>     while pos < len(source):
+[?2004l[?2004h>         lt = source.find("<", pos)
+[?2004l[?2004h>         if lt < 0:
+[?2004l[?2004h>             out.append(source[pos:])
+[?2004l[?2004h>             break
+[?2004l[?2004h>         out.append(source[pos:lt])
+[?2004l[?2004h>         if source.startswith("<!--", lt):
+[?2004l[?2004h>             end = source.find("-->", lt + 4)
+[?2004l[?2004h>             end = len(source) if end < 0 else end + 3
+[?2004l[?2004h>             out.append(source[lt:end])
+[?2004l[?2004h>             pos = end
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         end = tag_end(source, lt)
+[?2004l[?2004h>         tag = source[lt:end]
+[?2004l[?2004h>         if re.match(r"(?is)<\\s*script\\b", tag):
+[?2004l[?2004h>             # Script data is consumed through its closing tag. If absent, the
+[?2004l[?2004h>             # remaining document is script data and must be discarded.
+[?2004l[?2004h>             close = closing.search(source, end)
+[?2004l[?2004h>             if not close:
+[?2004l[?2004h>                 break
+[?2004l[?2004h>             pos = close.end()
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         out.append(tag)
+[?2004l[?2004h>         pos = end
+[?2004l[?2004h>     return "".join(out)
+[?2004l[?2004h> '''
+[?2004l[?2004h> s = s[:a] + replacement + s[b:]
+[?2004l[?2004h> open(p, 'w', encoding='utf-8', newline='').write(s)
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@4591bbd45b5f:/app# python3 -m py_compile /app/filter.py
+[?2004l[?2004hroot@4591bbd45b5f:/app# cat > /tmp/context-test.html <<'EOF'
+[?2004l[?2004h> <div title="literal <script> remains" data-x="1">keep</div><!-- <script> comment --><script>alert(1)</script><p>after</p>
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@4591bbd45b5f:/app# cp /tmp/context-test.html /tmp/context-before.html
+[?2004l[?2004hroot@4591bbd45b5f:/app# /app/filter.py /tmp/context-test.html
+[?2004l[?2004hroot@4591bbd45b5f:/app# cat /tmp/context-test.html
+[?2004l<div title="literal <script> remains" data-x="1">keep</div><!-- <script> comment --><p>after</p>
+[?2004hroot@4591bbd45b5f:/app# grep -Fq '<div title="literal <script> remains" data-x="1">keep</div><!-- <script> comment --><p>after</p>' /tmp/context-test.html && echo context-preserved-script-removed
+[?2004lcontext-preserved-script-removed
+[?2004hroot@4591bbd45b5f:/app# review status || true
+[?2004lbash: review: command not found
+[?2004hroot@4591bbd45b5f:/app# test -x /app/filter.py && python3 -m py_compile /app/filter.py && echo 'filter.py ready'
+[?2004lfilter.py ready
+[?2004hroot@4591bbd45b5f:/app# 

@@ -1,0 +1,81 @@
+[?2004hroot@f5bef9a012a4:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@f5bef9a012a4:/app# clear
+[?2004l[H[J[3J[?2004hroot@f5bef9a012a4:/app# cd /app/repo && printf '%s\n' '--- status ---' && git status --short && printf '%s\n' '--- refs ---' && git show-ref --head && printf '%s\n' '--- reflogs ---' && git reflog show --all && printf '%s\n' '--- git object secret scan ---' && git fsck --full --no-reflogs --unreachable 2>/dev/null | awk '/^[a-z]+ [0-9a-f]{40}/ {print $3}' | sort -u | while read -r oid; do git cat-file -p "$oid" 2>/dev/null; done | grep -nE 'secret\[[^]]*\]' || true
+[?2004l--- status ---
+--- refs ---
+c6d99979c3ef74db39532137fb89516c2d707785 HEAD
+c6d99979c3ef74db39532137fb89516c2d707785 refs/heads/master
+--- reflogs ---
+[?1h=[33mc6d9997[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m refs/heads/master@{0}: commit: chore: init e665d1a2-04a7-4e61-b523-e897e231d9cc[m
+[33m7a2420e[m refs/heads/master@{1}: reset: moving to HEAD~1[m
+[33m6b4c75c[m refs/heads/master@{2}: commit: feat: add scratch notes[m
+[33m7a2420e[m refs/heads/master@{3}: commit (initial): chore: init e665d1a2-04a7-4e61-b523-e897e231d9cc[m
+[33mc6d9997[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m HEAD@{0}: commit: chore: init e665d1a2-04a7-4e61-b523-e897e231d9cc[m
+[33m7a2420e[m HEAD@{1}: reset: moving to HEAD~1[m
+[33m6b4c75c[m HEAD@{2}: commit: feat: add scratch notes[m
+[33m7a2420e[m HEAD@{3}: commit (initial): chore: init e665d1a2-04a7-4e61-b523-e897e231d9cc[m
+[K[?1l>--- git object secret scan ---
+[?2004hroot@f5bef9a012a4:/app/repo# cd /app/repo && printf '%s\n' '--- all refs object scan ---' && git rev-list --all --objects | awk '{print $1}' | sort -u | while read -r oid; do git cat-file -p "$oid" 2>/dev/null; done | grep -nE 'secret\[[^]]*\]' || true && printf '%s\n' '--- filesystem scan excluding git objects binaries ---' && grep -RInE --exclude-dir=.git 'secret\[[^]]*\]' . || true
+[?2004l--- all refs object scan ---
+--- filesystem scan excluding git objects binaries ---
+[?2004hroot@f5bef9a012a4:/app/repo# cd /app/repo && printf '%s\n' '--- removed commit ---' && git show --format=fuller --stat 6b4c75c && printf '%s\n' '--- removed commit content ---' && git show --format=fuller 6b4c75c && printf '%s\n' '--- all object scan including dangling and reflog objects ---' && git cat-file --batch-all-objects --batch-check='%(objectname) %(objecttype)' | while read -r oid type; do git cat-file -p "$oid" 2>/dev/null | grep -HnE 'secret\[[^]]*\]' --label="$oid ($type)" || true; done
+[?2004l--- removed commit ---
+[?1h=[33mcommit 6b4c75caa9a2aa9a630e16764007b0109b1f5c07[m[m
+Author:     TerminalBench <tb@example.com>[m
+AuthorDate: Tue Oct 28 22:02:30 2025 +0000[m
+Commit:     TerminalBench <tb@example.com>[m
+CommitDate: Tue Oct 28 22:02:30 2025 +0000[m
+[m
+    feat: add scratch notes[m
+[m
+ secret.txt | 1 [32m+[m[m
+ 1 file changed, 1 insertion(+)[m
+[K[?1l>--- removed commit content ---
+[?1h=[33mcommit 6b4c75caa9a2aa9a630e16764007b0109b1f5c07[m[m
+Author:     TerminalBench <tb@example.com>[m
+AuthorDate: Tue Oct 28 22:02:30 2025 +0000[m
+Commit:     TerminalBench <tb@example.com>[m
+CommitDate: Tue Oct 28 22:02:30 2025 +0000[m
+[m
+    feat: add scratch notes[m
+[m
+[1mdiff --git a/secret.txt b/secret.txt[m[m
+[1mnew file mode 100644[m[m
+[1mindex 0000000..52d18a0[m[m
+[1m--- /dev/null[m[m
+[1m+++ b/secret.txt[m[m
+[36m@@ -0,0 +1 @@[m[m
+[32m+[m[32msecret[lost_and_found_in_git][m[m
+[K[?1l>--- all object scan including dangling and reflog objects ---
+[35m[K52d18a091cd9755bacb8eaccab2882a24b080dc7 (blob)[m[K[36m[K:[m[K[32m[K1[m[K[36m[K:[m[K[01;31m[Ksecret[lost_and_found_in_git][m[K
+[?2004hroot@f5bef9a012a4:/app/repo# cd /app/repo && secret=$(git cat-file --batch-all-objects --batch-check='%(objectname)' | while read -r oid; do git cat-file -p "$oid" 2>/dev/null; done | grep -oE 'secret\[[^]]*\]' | sort -u) && printf '%s\n' "$secret" | tee /app/secret.txt && test "$(printf '%s\n' "$secret" | sed '/^$/d' | wc -l)" -eq 1 && printf '%s\n' 'Recovered exactly one secret.' && printf '%s\n' '--- references before cleanup ---' && git fsck --full --unreachable 2>&1 || true
+[?2004lsecret[lost_and_found_in_git]
+Recovered exactly one secret.
+--- references before cleanup ---
+Checking object directories: 100% (256/256)Checking object directories: 100% (256/256), done.
+[?2004hroot@f5bef9a012a4:/app/repo# cd /app/repo && git reflog expire --expire=now --expire-unreachable=now --all && git gc --prune=now && printf '%s\n' '--- refs after cleanup ---' && git show-ref --head && printf '%s\n' '--- reflogs after cleanup ---' && git reflog show --all && printf '%s\n' '--- unreachable objects after cleanup ---' && git fsck --full --unreachable 2>&1
+[?2004lEnumerating objects: 6, done.
+Counting objects:  16% (1/6)Counting objects:  33% (2/6)Counting objects:  50% (3/6)Counting objects:  66% (4/6)Counting objects:  83% (5/6)Counting objects: 100% (6/6)Counting objects: 100% (6/6), done.
+Delta compression using up to 8 threads
+Compressing objects:  50% (1/2)Compressing objects: 100% (2/2)Compressing objects: 100% (2/2), done.
+Writing objects:  16% (1/6)Writing objects:  33% (2/6)Writing objects:  50% (3/6)Writing objects:  66% (4/6)Writing objects:  83% (5/6)Writing objects: 100% (6/6)Writing objects: 100% (6/6), done.
+Total 6 (delta 1), reused 0 (delta 0), pack-reused 0
+--- refs after cleanup ---
+c6d99979c3ef74db39532137fb89516c2d707785 HEAD
+c6d99979c3ef74db39532137fb89516c2d707785 refs/heads/master
+--- reflogs after cleanup ---
+[?1h=[K[?1l>--- unreachable objects after cleanup ---
+Checking object directories: 100% (256/256)Checking object directories: 100% (256/256), done.
+Checking objects:   0% (0/6)Checking objects: 100% (6/6)Checking objects: 100% (6/6), done.
+Verifying commits in commit graph:  50% (1/2)Verifying commits in commit graph: 100% (2/2)Verifying commits in commit graph: 100% (2/2), done.
+[?2004hroot@f5bef9a012a4:/app/repo# cd /app/repo && printf '%s\n' '--- complete Git object scan ---' && ! git cat-file --batch-all-objects --batch-check='%(objectname)' | while read -r oid; do git cat-file -p "$oid" 2>/dev/null; done | grep -nE 'secret\[[^]]*\]' && printf '%s\n' '--- non-object repository file scan ---' && ! grep -RInaE --exclude-dir=objects 'secret\[[^]]*\]' .git . 2>/dev/null && printf '%s\n' '--- unchanged live state ---' && test "$(git rev-parse HEAD)" = c6d99979c3ef74db39532137fb89516c2d707785 && git status --porcelain && printf '%s\n' '--- recovered secret ---' && cat /app/secret.txt
+[?2004l--- complete Git object scan ---
+--- non-object repository file scan ---
+--- unchanged live state ---
+--- recovered secret ---
+secret[lost_and_found_in_git]
+[?2004hroot@f5bef9a012a4:/app/repo# cd /app && review status
+[?2004lbash: review: command not found
+[?2004hroot@f5bef9a012a4:/app# 

@@ -1,0 +1,23 @@
+{
+  "container_paths": [
+    "TODO: run docker and collect with find / -type f"
+  ],
+  "reference_diff_paths": [
+    "/app/ssl/verification.txt",
+    "/app/ssl/server.key",
+    "/app/ssl/server.pem",
+    "/app/check_cert.py",
+    "/app/ssl/server.crt"
+  ],
+  "gate_paths": [
+    "/opt/ppa/check_presented.sh"
+  ],
+  "manifest_reproduced": true,
+  "task_touches": [
+    "/app/ssl",
+    "/app/ssl",
+    "/app/ssl",
+    "/app",
+    "/app/ssl"
+  ]
+}

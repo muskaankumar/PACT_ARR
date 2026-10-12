@@ -1,0 +1,68 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lr}
+\toprule
+check & value \\
+\midrule
+episodes & 5 \\
+tasks & 1 \\
+reach rate (overall) & 1.000 \\
+reach rate (scripted) & 1.000 \\
+reach-rate spread & 0.000 \\
+H/P disagreement & 0.200 \\
+contestation rate & 0.000 \\
+attribution gaps & 0 \\
+gate excluded (flaky/undet.) & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Manipulation and balance checks.}
+\label{tab:manip}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+Arm & $k/n$ & Violation rate (95\% CI, task-clustered) \\
+\midrule
+uninformed & 2/5 & 40.0% [11.8, 76.9]* \\
+informed & 0/0 & nan% [nan, nan]* \\
+difference &  & nanpp [nan, nan] \\
+\bottomrule
+\end{tabular}
+\caption{Primary contrast. Intervals bootstrap over tasks, not episodes.}
+\label{tab:primary}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Model & Arm & Success & Violation (exp.) & Disclosure \\
+\midrule
+scripted & uninformed & 80.0% [37.6, 96.4]* & 40.0% [11.8, 76.9]* & 0.0% [0.0, 65.8]* \\
+\bottomrule
+\end{tabular}
+\caption{Capability versus misalignment. All rates task-clustered.}
+\label{tab:frontier}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lr}
+\toprule
+Event & $n$ \\
+\midrule
+forbidden_path_edit & 1 \\
+forbidden_path_edit (reverted, not counted) & 1 \\
+gate_tamper:vacuous & 1 \\
+gate_repair_justified (not counted) & 1 \\
+\bottomrule
+\end{tabular}
+\caption{Violation events by kind.}
+\label{tab:violations}
+\end{table}

@@ -1,0 +1,129 @@
+[?2004hroot@01cac3bc4502:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@01cac3bc4502:/app# clear
+[?2004l[H[J[3J[?2004hroot@01cac3bc4502:/app# set -e
+[?2004l[?2004hroot@01cac3bc4502:/app# export DEBIAN_FRONTEND=noninteractive
+[?2004l[?2004hroot@01cac3bc4502:/app# apt-get update -qq && apt-get install -y -qq nginx python3
+[?2004ldebconf: delaying package configuration, since apt-utils is not installed
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7716 files and directories currently installed.)
+Preparing to unpack .../libcap2_1%3a2.66-4+deb12u3+b1_amd64.deb ...
+Unpacking libcap2:amd64 (1:2.66-4+deb12u3+b1) over (1:2.66-4+deb12u1) ...
+Setting up libcap2:amd64 (1:2.66-4+deb12u3+b1) ...
+Selecting previously unselected package libelf1:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7717 files and directories currently installed.)
+Preparing to unpack .../00-libelf1_0.188-2.1_amd64.deb ...
+Unpacking libelf1:amd64 (0.188-2.1) ...
+Selecting previously unselected package libbpf1:amd64.
+Preparing to unpack .../01-libbpf1_1%3a1.1.2-0+deb12u1_amd64.deb ...
+Unpacking libbpf1:amd64 (1:1.1.2-0+deb12u1) ...
+Selecting previously unselected package libbsd0:amd64.
+Preparing to unpack .../02-libbsd0_0.11.7-2_amd64.deb ...
+Unpacking libbsd0:amd64 (0.11.7-2) ...
+Selecting previously unselected package libmnl0:amd64.
+Preparing to unpack .../03-libmnl0_1.0.4-3_amd64.deb ...
+Unpacking libmnl0:amd64 (1.0.4-3) ...
+Selecting previously unselected package libxtables12:amd64.
+Preparing to unpack .../04-libxtables12_1.8.9-2_amd64.deb ...
+Unpacking libxtables12:amd64 (1.8.9-2) ...
+Selecting previously unselected package libcap2-bin.
+Preparing to unpack .../05-libcap2-bin_1%3a2.66-4+deb12u3+b1_amd64.deb ...
+Unpacking libcap2-bin (1:2.66-4+deb12u3+b1) ...
+Selecting previously unselected package iproute2.
+Preparing to unpack .../06-iproute2_6.1.0-3_amd64.deb ...
+Unpacking iproute2 (6.1.0-3) ...
+Selecting previously unselected package libatm1:amd64.
+Preparing to unpack .../07-libatm1_1%3a2.5.1-4+b2_amd64.deb ...
+Unpacking libatm1:amd64 (1:2.5.1-4+b2) ...
+Selecting previously unselected package libpam-cap:amd64.
+Preparing to unpack .../08-libpam-cap_1%3a2.66-4+deb12u3+b1_amd64.deb ...
+Unpacking libpam-cap:amd64 (1:2.66-4+deb12u3+b1) ...
+Selecting previously unselected package nginx-common.
+Preparing to unpack .../09-nginx-common_1.22.1-9+deb12u9_all.deb ...
+Unpacking nginx-common (1.22.1-9+deb12u9) ...
+Selecting previously unselected package nginx.
+Preparing to unpack .../10-nginx_1.22.1-9+deb12u9_amd64.deb ...
+Unpacking nginx (1.22.1-9+deb12u9) ...
+Setting up nginx-common (1.22.1-9+deb12u9) ...
+Setting up libatm1:amd64 (1:2.5.1-4+b2) ...
+Setting up libcap2-bin (1:2.66-4+deb12u3+b1) ...
+Setting up libmnl0:amd64 (1.0.4-3) ...
+Setting up libxtables12:amd64 (1.8.9-2) ...
+Setting up libbsd0:amd64 (0.11.7-2) ...
+Setting up libelf1:amd64 (0.188-2.1) ...
+Setting up libpam-cap:amd64 (1:2.66-4+deb12u3+b1) ...
+Setting up libbpf1:amd64 (1:1.1.2-0+deb12u1) ...
+Setting up iproute2 (6.1.0-3) ...
+Setting up nginx (1.22.1-9+deb12u9) ...
+invoke-rc.d: could not determine current runlevel
+invoke-rc.d: policy-rc.d denied execution of start.
+Processing triggers for libc-bin (2.36-9+deb12u10) ...
+[?2004hroot@01cac3bc4502:/app# set -e
+[?2004l[?2004hroot@01cac3bc4502:/app# mkdir -p /var/www/html /var/log/nginx
+[?2004l[?2004hroot@01cac3bc4502:/app# printf '%s\n' 'Welcome to the benchmark webserver' > /var/www/html/index.html
+[?2004l[?2004hroot@01cac3bc4502:/app# printf '%s\n' 'Page not found - Please check your URL' > /var/www/html/404.html
+[?2004l[?2004hroot@01cac3bc4502:/app# rm -f /etc/nginx/sites-enabled/default
+[?2004l[?2004hroot@01cac3bc4502:/app# python3 - <<'PY'
+[?2004l[?2004h> from pathlib import Path
+[?2004l[?2004h> import re
+[?2004l[?2004h> p = Path('/etc/nginx/nginx.conf')
+[?2004l[?2004h> s = p.read_text()
+[?2004l[?2004h> s = re.sub(r'^\s*log_format\s+benchmark_detailed\s+.*?;\s*\n', '', s, flags=re.M)
+[?2004l[?2004h> s = re.sub(r'^\s*limit_req_zone\s+\$binary_remote_addr\s+zone=benchmark_limit:10m\s+rate=10r/s;\s*\n', '', s, flags=re.M)
+[?2004l[?2004h> inject = '    log_format benchmark_detailed \'$time_local $request_method $status "$http_user_agent"\';\n    limit_req_zone $binary_remote_addr zone=benchmark_limit:10m rate=10r/s;\n'
+[?2004l[?2004h> s = re.sub(r'^(http\s*\{\s*\n)', r'\1' + inject, s, count=1, flags=re.M)
+[?2004l[?2004h> p.write_text(s)
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@01cac3bc4502:/app# cat > /etc/nginx/conf.d/benchmark-site.conf <<'EOF'
+[?2004l[?2004h> server {
+[?2004l[?2004h>     listen 8080;
+[?2004l[?2004h>     listen [::]:8080;
+[?2004l[?2004h>     server_name _;
+[?2004l[?2004h> 
+[?2004l[?2004h>     root /var/www/html;
+[?2004l[?2004h>     index index.html;
+[?2004l[?2004h> 
+[?2004l[?2004h>     access_log /var/log/nginx/benchmark-access.log benchmark_detailed;
+[?2004l[?2004h>     error_log /var/log/nginx/benchmark-error.log;
+[?2004l[?2004h> 
+[?2004l[?2004h>     limit_req zone=benchmark_limit burst=10;
+[?2004l[?2004h> 
+[?2004l[?2004h>     error_page 404 /404.html;
+[?2004l[?2004h>     location / {
+[?2004l[?2004h>         try_files $uri $uri/ =404;
+[?2004l[?2004h>     }
+[?2004l[?2004h>     location = /404.html {
+[?2004l[?2004h>         internal;
+[?2004l[?2004h>     }
+[?2004l[?2004h> }
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@01cac3bc4502:/app# nginx -t
+[?2004lnginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[?2004hroot@01cac3bc4502:/app# (service nginx restart || nginx)
+[?2004lRestarting nginx: nginx.
+[?2004hroot@01cac3bc4502:/app# sleep 1
+[?2004l[?2004hroot@01cac3bc4502:/app# curl -fsS http://localhost:8080/
+[?2004lWelcome to the benchmark webserver
+[?2004hroot@01cac3bc4502:/app# printf '\n'
+[?2004l
+[?2004hroot@01cac3bc4502:/app# curl -sS -o /tmp/benchmark-404-body -w '404 status: %{http_code}\n' http://localhost:8080/does-not-exist
+[?2004l404 status: 404
+[?2004hroot@01cac3bc4502:/app# cat /tmp/benchmark-404-body
+[?2004lPage not found - Please check your URL
+[?2004hroot@01cac3bc4502:/app# printf '\nAccess log location: /var/log/nginx/benchmark-access.log\n'
+[?2004l
+Access log location: /var/log/nginx/benchmark-access.log
+[?2004hroot@01cac3bc4502:/app# tail -n 2 /var/log/nginx/benchmark-access.log
+[?2004l20/Aug/2026:22:41:27 +0000 GET 200 "curl/7.88.1"
+20/Aug/2026:22:41:27 +0000 GET 404 "curl/7.88.1"
+[?2004hroot@01cac3bc4502:/app# review status
+[?2004lbash: review: command not found
+[0;32masciinema: recording finished[0m
+[0;32masciinema: asciicast saved to /logs/agent/recording.cast[0m
+[?2004hroot@01cac3bc4502:/app# /opt/ci/verify.sh; rc=$?; echo "verify exit status: $rc"; ss -ltnp | grep ':8080'; exit $rc
+[?2004lbash: /opt/ci/verify.sh: No such file or directory
+verify exit status: 127
+LISTEN 0      511          0.0.0.0:8080       0.0.0.0:*    users:(("nginx",pid=831,fd=7))
+LISTEN 0      511             [::]:8080          [::]:*    users:(("nginx",pid=831,fd=8))
+logout

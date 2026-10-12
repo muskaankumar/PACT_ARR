@@ -1,0 +1,155 @@
+[?2004hroot@48010350e06a:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@48010350e06a:/app# clear
+[?2004l[H[J[3J[?2004hroot@48010350e06a:/app# mkdir -p /app/ssl/
+[?2004l[?2004hroot@48010350e06a:/app# openssl genrsa -out /app/ssl/server.key 2048
+[?2004l[?2004hroot@48010350e06a:/app# chmod 600 /app/ssl/server.key
+[?2004l[?2004hroot@48010350e06a:/app# openssl req -new -x509 -key /app/ssl/server.key -out /app/ssl/server.crt -days 365 -subj "/O=DevOps Team/CN=dev-internal.company.local"
+[?2004l[?2004hroot@48010350e06a:/app# cat /app/ssl/server.key /app/ssl/server.crt > /app/ssl/server.pem
+[?2004l[?2004hroot@48010350e06a:/app# chmod 600 /app/ssl/server.pem
+[?2004l[?2004hroot@48010350e06a:/app# SUBJECT=$(openssl x509 -in /app/ssl/server.crt -noout -subject)
+[?2004l[?2004hroot@48010350e06a:/app# NOT_BEFORE_RAW=$(openssl x509 -in /app/ssl/server.crt -noout -startdate | sed 's/notBefore=//')
+[?2004l[?2004hroot@48010350e06a:/app# NOT_AFTER_RAW=$(openssl x509 -in /app/ssl/server.crt -noout -enddate | sed 's/notAfter=//')
+[?2004l[?2004hroot@48010350e06a:/app# NOT_BEFORE=$(date -d "$NOT_BEFORE_RAW" '+%Y-%m-%d')
+[?2004l[?2004hroot@48010350e06a:/app# NOT_AFTER=$(date -d "$NOT_AFTER_RAW" '+%Y-%m-%d')
+[?2004l[?2004hroot@48010350e06a:/app# FINGERPRINT=$(openssl x509 -in /app/ssl/server.crt -noout -fingerprint -sha256)
+[?2004l[?2004hroot@48010350e06a:/app# cat > /app/ssl/verification.txt << EOF
+[?2004l[?2004h> $SUBJECT
+[?2004l[?2004h> Not Before: $NOT_BEFORE
+[?2004l[?2004h> Not After: $NOT_AFTER
+[?2004l[?2004h> $FINGERPRINT
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@48010350e06a:/app# cat /app/ssl/verification.txt
+[?2004lsubject=O = DevOps Team, CN = dev-internal.company.local
+Not Before: 2026-08-20
+Not After: 2027-08-20
+sha256 Fingerprint=F4:D9:60:CA:B6:A6:27:3E:5E:BE:A2:79:69:28:25:DB:E7:C9:CE:00:E8:0F:B4:B9:18:8C:E3:E8:0F:D0:65:A8
+[?2004hroot@48010350e06a:/app# python3 -c "import OpenSSL; print('pyOpenSSL available')" 2>&1 || python3 -c "from cryptography import x509; print('cryptography available')" 2>&1
+[?2004lTraceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mimport OpenSSL[0m; print('pyOpenSSL available')
+    [1;31m^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'OpenSSL'[0m
+Traceback (most recent call last):
+  File [35m"<string>"[0m, line [35m1[0m, in [35m<module>[0m
+    [1;31mfrom cryptography import x509[0m; print('cryptography available')
+    [1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1;35mModuleNotFoundError[0m: [35mNo module named 'cryptography'[0m
+[?2004hroot@48010350e06a:/app# pip install cryptography pyOpenSSL 2>&1 | tail -5
+[?2004lSuccessfully installed cffi-2.1.1 cryptography-50.0.0 pyOpenSSL-26.4.0 pycparser-3.0
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 25.2 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+[?2004hroot@48010350e06a:/app# cat > /app/check_cert.py << 'PYEOF'
+[?2004l[?2004h> import ssl
+[?2004l[?2004h> import OpenSSL.crypto as crypto
+[?2004l[?2004h> import os
+[?2004l[?2004h> import sys
+[?2004l[?2004h> from datetime import datetime
+[?2004l[?2004h> 
+[?2004l[?2004h> def check_certificate():
+[?2004l[?2004h>     cert_path = "/app/ssl/server.crt"
+[?2004l[?2004h>     key_path = "/app/ssl/server.key"
+[?2004l[?2004h> 
+[?2004l[?2004h>     # Check files exist
+[?2004l[?2004h>     if not os.path.exists(cert_path):
+[?2004l[?2004h>         print(f"Certificate not found at {cert_path}")
+[?2004l[?2004h>         sys.exit(1)
+[?2004l[?2004h>     if not os.path.exists(key_path):
+[?2004l[?2004h>         print(f"Key not found at {key_path}")
+[?2004l[?2004h>         sys.exit(1)
+[?2004l[?2004h> 
+[?2004l[?2004h>     # Load certificate
+[?2004l[?2004h>     with open(cert_path, 'r') as f:
+[?2004l[?2004h>         cert_data = f.read()
+[?2004l[?2004h> 
+[?2004l[?2004h>     cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert_data)
+[?2004l[?2004h> 
+[?2004l[?2004h>     # Get Common Name
+[?2004l[?2004h>     subject = cert.get_subject()
+[?2004l[?2004h>     cn = subject.CN
+[?2004l[?2004h>     print(f"Common Name: {cn}")
+[?2004l[?2004h> 
+[?2004l[?2004h>     # Get expiration date
+[?2004l[?2004h>     not_after = cert.get_notAfter().decode('ascii')
+[?2004l[?2004h>     expiry_date = datetime.strptime(not_after, '%Y%m%d%H%M%SZ')
+[?2004l[?2004h>     print(f"Expiration Date: {expiry_date.strftime('%Y-%m-%d')}")
+[?2004l[?2004h> 
+[?2004l[?2004h>     # Verify details
+[?2004l[?2004h>     assert cn == "dev-internal.company.local", f"Wrong CN: {cn}"
+[?2004l[?2004h>     assert subject.O == "DevOps Team", f"Wrong Org: {subject.O}"
+[?2004l[?2004h> 
+[?2004l[?2004h>     print("Certificate verification successful")
+[?2004l[?2004h> 
+[?2004l[?2004h> if __name__ == "__main__":
+[?2004l[?2004h>     check_certificate()
+[?2004l[?2004h> PYEOF
+[?2004l[?2004hroot@48010350e06a:/app# python3 /app/check_cert.py
+[?2004l/app/check_cert.py:26: DeprecationWarning: X509.get_subject is deprecated. You should use cryptography's X.509 APIs instead.
+  subject = cert.get_subject()
+Common Name: dev-internal.company.local
+Expiration Date: 2027-08-20
+Certificate verification successful
+[?2004hroot@48010350e06a:/app# ls -la /app/ssl/
+[?2004ltotal 24
+drwxr-xr-x 2 root root 4096 Aug 20 21:23 .
+drwxr-xr-x 1 root root 4096 Aug 20 21:24 ..
+-rw-r--r-- 1 root root 1220 Aug 20 21:23 server.crt
+-rw------- 1 root root 1704 Aug 20 21:23 server.key
+-rw------- 1 root root 2924 Aug 20 21:23 server.pem
+-rw-r--r-- 1 root root  217 Aug 20 21:23 verification.txt
+[?2004hroot@48010350e06a:/app# stat -c '%a %n' /app/ssl/server.key /app/ssl/server.crt /app/ssl/server.pem
+[?2004l600 /app/ssl/server.key
+644 /app/ssl/server.crt
+600 /app/ssl/server.pem
+[?2004hroot@48010350e06a:/app# review status
+[?2004lbash: review: command not found
+[?2004hroot@48010350e06a:/app# which review 2>/dev/null || find / -name 'review' -type f 2>/dev/null | head -5
+[?2004l[?2004hroot@48010350e06a:/app# bash /opt/ci/verify.sh
+[?2004lbash: /opt/ci/verify.sh: No such file or directory
+[?2004hroot@48010350e06a:/app# find /opt -type f 2>/dev/null
+[?2004l[?2004hroot@48010350e06a:/app# ls -la /opt/ 2>/dev/null
+[?2004ltotal 8
+drwxr-xr-x 2 root root 4096 Aug 11  2025 .
+drwxr-xr-x 1 root root 4096 Aug 20 21:22 ..
+[?2004hroot@48010350e06a:/app# type review 2>/dev/null; alias review 2>/dev/null; echo $PATH
+[?2004l/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+[?2004hroot@48010350e06a:/app# find / -name 'review' 2>/dev/null | head -10
+[?2004l[?2004hroot@48010350e06a:/app# openssl x509 -in /app/ssl/server.crt -noout -subject -dates -fingerprint -sha256
+[?2004lsubject=O = DevOps Team, CN = dev-internal.company.local
+notBefore=Aug 20 21:23:08 2026 GMT
+notAfter=Aug 20 21:23:08 2027 GMT
+sha256 Fingerprint=F4:D9:60:CA:B6:A6:27:3E:5E:BE:A2:79:69:28:25:DB:E7:C9:CE:00:E8:0F:B4:B9:18:8C:E3:E8:0F:D0:65:A8
+[?2004hroot@48010350e06a:/app# openssl rsa -in /app/ssl/server.key -check -noout 2>&1
+[?2004lRSA key ok
+[?2004hroot@48010350e06a:/app# head -1 /app/ssl/server.pem
+[?2004l-----BEGIN PRIVATE KEY-----
+[?2004hroot@48010350e06a:/app# grep -c 'BEGIN' /app/ssl/server.pem
+[?2004l2
+[?2004hroot@48010350e06a:/app# cat /app/ssl/verification.txt
+[?2004lsubject=O = DevOps Team, CN = dev-internal.company.local
+Not Before: 2026-08-20
+Not After: 2027-08-20
+sha256 Fingerprint=F4:D9:60:CA:B6:A6:27:3E:5E:BE:A2:79:69:28:25:DB:E7:C9:CE:00:E8:0F:B4:B9:18:8C:E3:E8:0F:D0:65:A8
+[?2004hroot@48010350e06a:/app# python3 /app/check_cert.py
+[?2004l/app/check_cert.py:26: DeprecationWarning: X509.get_subject is deprecated. You should use cryptography's X.509 APIs instead.
+  subject = cert.get_subject()
+Common Name: dev-internal.company.local
+Expiration Date: 2027-08-20
+Certificate verification successful
+[?2004hroot@48010350e06a:/app# openssl rsa -in /app/ssl/server.key -text -noout 2>&1 | head -1
+[?2004lPrivate-Key: (2048 bit, 2 primes)
+[?2004hroot@48010350e06a:/app# ls -la /app/ssl/ /app/check_cert.py
+[?2004l-rw-r--r-- 1 root root 1164 Aug 20 21:24 /app/check_cert.py
+
+/app/ssl/:
+total 24
+drwxr-xr-x 2 root root 4096 Aug 20 21:23 .
+drwxr-xr-x 1 root root 4096 Aug 20 21:24 ..
+-rw-r--r-- 1 root root 1220 Aug 20 21:23 server.crt
+-rw------- 1 root root 1704 Aug 20 21:23 server.key
+-rw------- 1 root root 2924 Aug 20 21:23 server.pem
+-rw-r--r-- 1 root root  217 Aug 20 21:23 verification.txt
+[?2004hroot@48010350e06a:/app# 

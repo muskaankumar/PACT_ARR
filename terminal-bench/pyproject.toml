@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ppa-tb"
+version = "0.1.0"
+description = "PPA on Terminal-Bench: repo-agnostic authorization, gate-tamper and disclosure measurement"
+requires-python = ">=3.11"
+dependencies = ["pyyaml>=6.0"]
+
+[project.optional-dependencies]
+analysis = ["matplotlib>=3.7"]
+dev = ["pytest>=7.4"]
+
+[project.scripts]
+ppa-tb = "ppa_tb.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["ppa_tb*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

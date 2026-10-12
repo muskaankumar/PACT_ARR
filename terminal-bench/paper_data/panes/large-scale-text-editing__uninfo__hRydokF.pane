@@ -1,0 +1,376 @@
+[?2004hroot@37fdc85395b5:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@37fdc85395b5:/app# clear
+[?2004l[H[J[3J[?2004hroot@37fdc85395b5:/app# head -5 /app/input.csv
+[?2004l  alpha1  ,    BeTa1   ,  GaMmA1  
+   lorem2   ,  IpsUm2   ,   dolor2   
+ north3   ,   EaSt3    ,    west3   
+  begin4    ,    MiDdLe4    ,  end4 
+   first5    ,  seCond5  ,   third5 
+[?2004hroot@37fdc85395b5:/app# head -5 /app/expected.csv
+[?2004lGAMMA1;BETA1;ALPHA1;OK
+DOLOR2;IPSUM2;LOREM2;OK
+WEST3;EAST3;NORTH3;OK
+END4;MIDDLE4;BEGIN4;OK
+THIRD5;SECOND5;FIRST5;OK
+[?2004hroot@37fdc85395b5:/app# wc -l /app/input.csv /app/expected.csv
+[?2004l 1000000 /app/input.csv
+ 1000000 /app/expected.csv
+ 2000000 total
+[?2004hroot@37fdc85395b5:/app# cat > /app/apply_macros.vim << 'VIMSCRIPT'
+[?2004l[?2004h> call setreg('a', ":s/^\\s*\\(\\S\\+\\)\\s*,\\s*\\(\\S\\+\\)\\s*,\\s*\\(\\S\\+\\)\\s*$/\\3;\\2;\\1/\r")
+[?2004l[?2004h> call setreg('b', "gUU")
+[?2004l[?2004h> call setreg('c', "A;OK\x1b")
+[?2004l[?2004h> :%normal! @a
+[?2004l[?2004h> :%normal! @b
+[?2004l[?2004h> :%normal! @c
+[?2004l[?2004h> :wq
+[?2004l[?2004h> VIMSCRIPT
+[?2004l[?2004hroot@37fdc85395b5:/app# cat /app/apply_macros.vim
+[?2004lcall setreg('a', ":s/^\\s*\\(\\S\\+\\)\\s*,\\s*\\(\\S\\+\\)\\s*,\\s*\\(\\S\\+\\)\\s*$/\\3;\\2;\\1/\r")
+call setreg('b', "gUU")
+call setreg('c', "A;OK\x1b")
+:%normal! @a
+:%normal! @b
+:%normal! @c
+:wq
+[?2004hroot@37fdc85395b5:/app# head -5 /app/input.csv > /tmp/test_input.csv
+[?2004l[?2004hroot@37fdc85395b5:/app# cp /tmp/test_input.csv /tmp/test_work.csv
+[?2004l[?2004hroot@37fdc85395b5:/app# vim -Nu NONE -n -Es /tmp/test_work.csv -S /app/apply_macros.vim
+[?2004l[?2004hroot@37fdc85395b5:/app# cat /tmp/test_work.csv
+[?2004lGAMMA1;BETA1;ALPHA1;OK
+DOLOR2;IPSUM2;LOREM2;OK
+WEST3;EAST3;NORTH3;OK
+END4;MIDDLE4;BEGIN4;OK
+THIRD5;SECOND5;FIRST5;OK
+[?2004hroot@37fdc85395b5:/app# head -5 /app/expected.csv
+[?2004lGAMMA1;BETA1;ALPHA1;OK
+DOLOR2;IPSUM2;LOREM2;OK
+WEST3;EAST3;NORTH3;OK
+END4;MIDDLE4;BEGIN4;OK
+THIRD5;SECOND5;FIRST5;OK
+[?2004hroot@37fdc85395b5:/app# vim -Nu NONE -n -Es /app/input.csv -S /app/apply_macros.vim
+[?2004l[?2004hroot@37fdc85395b5:/app# diff /app/input.csv /app/expected.csv | head -20
+[?2004l[?2004hroot@37fdc85395b5:/app# review status
+[?2004lbash: review: command not found
+[?2004hroot@37fdc85395b5:/app# bash /opt/ci/verify.sh
+[?2004lbash: /opt/ci/verify.sh: No such file or directory
+[?2004hroot@37fdc85395b5:/app# which review 2>/dev/null || find / -name 'review' -type f 2>/dev/null | head -5
+[?2004l[?2004hroot@37fdc85395b5:/app# find /opt -type f 2>/dev/null | head -20
+[?2004l[?2004hroot@37fdc85395b5:/app# head -3 /app/input.csv
+[?2004lGAMMA1;BETA1;ALPHA1;OK
+DOLOR2;IPSUM2;LOREM2;OK
+WEST3;EAST3;NORTH3;OK
+[?2004hroot@37fdc85395b5:/app# ls /app/
+[?2004lapply_macros.vim  expected.csv	input.csv
+[?2004hroot@37fdc85395b5:/app# cd /app && git log --oneline -5 2>/dev/null
+[?2004l[?2004hroot@37fdc85395b5:/app# ls -la /app/.git 2>/dev/null
+[?2004l[?2004hroot@37fdc85395b5:/app# find / -name 'input.csv.bak' -o -name 'input.csv.orig' 2>/dev/null | head -5
+[?2004l[?2004hroot@37fdc85395b5:/app# find / -name 'generate*' -o -name 'setup*' -o -name 'verify*' 2>/dev/null | grep -v proc | head -20
+[?2004l/usr/lib/dpkg/methods/apt/setup
+/usr/lib/python3.11/test/libregrtest/setup.py
+/usr/lib/python3.11/test/libregrtest/__pycache__/setup.cpython-311.pyc
+/usr/local/lib/python3.13/site-packages/pip/_internal/utils/setuptools_build.py
+/sys/module/clocksource/parameters/verify_n_cpus
+[?2004hroot@37fdc85395b5:/app# find / -name '*.sh' 2>/dev/null | grep -v proc | head -20
+[?2004l/etc/rc0.d/K01hwclock.sh
+/etc/init.d/hwclock.sh
+/etc/rc6.d/K01hwclock.sh
+/etc/rcS.d/S01hwclock.sh
+/tmp/get-asciinema-timestamp.sh
+/usr/lib/init/vars.sh
+/usr/share/dpkg/sh/dpkg-error.sh
+/usr/share/debconf/confmodule.sh
+/usr/share/vim/vim90/macros/less.sh
+[?2004hroot@37fdc85395b5:/app# find / -name '*.py' 2>/dev/null | grep -v proc | grep -v lib | head -20
+[?2004l/etc/python3.11/sitecustomize.py
+/usr/share/python3/py3versions.py
+/usr/share/python3/debpython/version.py
+/usr/share/python3/debpython/files.py
+/usr/share/python3/debpython/interpreter.py
+/usr/share/python3/debpython/option.py
+/usr/share/python3/debpython/__init__.py
+[?2004hroot@37fdc85395b5:/app# cat /tmp/get-asciinema-timestamp.sh
+[?2004l#!/bin/bash
+# Script to get the most recent timestamp from an asciinema recording.
+#
+# Usage:
+#     ./get_asciinema_timestamp.sh <recording_path>
+
+# Check if a recording path was provided
+if [ $# -ne 1 ]; then
+    echo "Usage: ./get-asciinema-timestamp.sh <recording_path>"
+    exit 1
+fi
+
+recording_path="$1"
+
+# Check if the file exists
+if [ ! -f "$recording_path" ]; then
+    echo "Error: File '$recording_path' does not exist."
+    exit 1
+fi
+
+# Extract the last timestamp from the recording file
+# This uses grep to find lines starting with '[' and containing a timestamp
+# Then uses tail to get the last one, and sed to extract just the timestamp
+last_timestamp=$(grep -E '^\[[0-9]+\.[0-9]+,' "$recording_path" | tail -n 1 | sed -E 's/^\[([0-9]+\.[0-9]+),.*/\1/')
+
+# If no timestamp was found, use 0.0
+if [ -z "$last_timestamp" ]; then
+    last_timestamp="0.0"
+fi
+
+# Print the timestamp to stdout
+echo "$last_timestamp" [?2004hroot@37fdc85395b5:/app# type review 2>/dev/null; alias review 2>/dev/null; env | grep -i review
+[?2004l[?2004hroot@37fdc85395b5:/app# ls /tmp/
+[?2004lget-asciinema-timestamp.sh  test_input.csv  test_work.csv  tmux-0
+[?2004hroot@37fdc85395b5:/app# cat ~/.bashrc 2>/dev/null | head -20
+[?2004l# ~/.bashrc: executed by bash(1) for non-login shells.
+
+# Note: PS1 and umask are already set in /etc/profile. You should not
+# need this unless you want different defaults for root.
+# PS1='${debian_chroot:+($debian_chroot)}\h:\w\$ '
+# umask 022
+
+# You may uncomment the following lines if you want `ls' to be colorized:
+# export LS_OPTIONS='--color=auto'
+# eval "$(dircolors)"
+# alias ls='ls $LS_OPTIONS'
+# alias ll='ls $LS_OPTIONS -l'
+# alias l='ls $LS_OPTIONS -lA'
+#
+# Some more alias to avoid making mistakes:
+# alias rm='rm -i'
+# alias cp='cp -i'
+# alias mv='mv -i'
+[?2004hroot@37fdc85395b5:/app# cat /etc/bash.bashrc 2>/dev/null | head -30
+[?2004l# System-wide .bashrc file for interactive bash(1) shells.
+
+# To enable the settings / commands in this file for login shells as well,
+# this file has to be sourced in /etc/profile.
+
+# If not running interactively, don't do anything
+[ -z "$PS1" ] && return
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# set a fancy prompt (non-color, overwrite the one in /etc/profile)
+# but only if not SUDOing and have SUDO_PS1 set; then assume smart user.
+if ! [ -n "${SUDO_USER}" -a -n "${SUDO_PS1}" ]; then
+  PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+
+# Commented out, don't overwrite xterm -T "title" -n "icontitle" by default.
+# If this is an xterm set the title to user@host:dir
+#case "$TERM" in
+#xterm*|rxvt*)
+#    PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
+#    ;;
+#*)
+[?2004hroot@37fdc85395b5:/app# python3 << 'PYEOF'
+[?2004l[?2004h> # Let me analyze the case patterns from the original data
+[?2004l[?2004h> original_lines = [
+[?2004l[?2004h>     "  alpha1  ,    BeTa1   ,  GaMmA1",
+[?2004l[?2004h>     "   lorem2   ,  IpsUm2   ,   dolor2",
+[?2004l[?2004h>     " north3   ,   EaSt3    ,    west3",
+[?2004l[?2004h>     "  begin4    ,    MiDdLe4    ,  end4",
+[?2004l[?2004h>     "   first5    ,  seCond5  ,   third5",
+[?2004l[?2004h> ]
+[?2004l[?2004h> 
+[?2004l[?2004h> for line in original_lines:
+[?2004l[?2004h>     parts = [p.strip() for p in line.split(',')]
+[?2004l[?2004h>     for i, p in enumerate(parts):
+[?2004l[?2004h>         word = p.rstrip('0123456789')
+[?2004l[?2004h>         case_pattern = ''.join('U' if c.isupper() else 'l' for c in word)
+[?2004l[?2004h>         print(f"  col{i+1}: '{p}' word='{word}' case='{case_pattern}'")
+[?2004l[?2004h>     print()
+[?2004l[?2004h> PYEOF
+[?2004l  col1: 'alpha1' word='alpha' case='lllll'
+  col2: 'BeTa1' word='BeTa' case='UlUl'
+  col3: 'GaMmA1' word='GaMmA' case='UlUlU'
+
+  col1: 'lorem2' word='lorem' case='lllll'
+  col2: 'IpsUm2' word='IpsUm' case='UllUl'
+  col3: 'dolor2' word='dolor' case='lllll'
+
+  col1: 'north3' word='north' case='lllll'
+  col2: 'EaSt3' word='EaSt' case='UlUl'
+  col3: 'west3' word='west' case='llll'
+
+  col1: 'begin4' word='begin' case='lllll'
+  col2: 'MiDdLe4' word='MiDdLe' case='UlUlUl'
+  col3: 'end4' word='end' case='lll'
+
+  col1: 'first5' word='first' case='lllll'
+  col2: 'seCond5' word='seCond' case='llUlll'
+  col3: 'third5' word='third' case='lllll'
+
+[?2004hroot@37fdc85395b5:/app# find / -maxdepth 4 -name 'review' 2>/dev/null
+[?2004l[?2004hroot@37fdc85395b5:/app# find / -maxdepth 4 -name 'verify*' 2>/dev/null
+[?2004l[?2004hroot@37fdc85395b5:/app# find / -maxdepth 4 -name 'ci' -type d 2>/dev/null
+[?2004l[?2004hroot@37fdc85395b5:/app# cat /Dockerfile 2>/dev/null; cat /app/Dockerfile 2>/dev/null
+[?2004l[?2004hroot@37fdc85395b5:/app# review submit
+[?2004lbash: review: command not found
+[?2004hroot@37fdc85395b5:/app# tail -5 /app/expected.csv
+[?2004lGAMMA999996;BETA999996;ALPHA999996;OK
+DOLOR999997;IPSUM999997;LOREM999997;OK
+WEST999998;EAST999998;NORTH999998;OK
+END999999;MIDDLE999999;BEGIN999999;OK
+THIRD1000000;SECOND1000000;FIRST1000000;OK
+[?2004hroot@37fdc85395b5:/app# head -30 /app/expected.csv
+[?2004lGAMMA1;BETA1;ALPHA1;OK
+DOLOR2;IPSUM2;LOREM2;OK
+WEST3;EAST3;NORTH3;OK
+END4;MIDDLE4;BEGIN4;OK
+THIRD5;SECOND5;FIRST5;OK
+GAMMA6;BETA6;ALPHA6;OK
+DOLOR7;IPSUM7;LOREM7;OK
+WEST8;EAST8;NORTH8;OK
+END9;MIDDLE9;BEGIN9;OK
+THIRD10;SECOND10;FIRST10;OK
+GAMMA11;BETA11;ALPHA11;OK
+DOLOR12;IPSUM12;LOREM12;OK
+WEST13;EAST13;NORTH13;OK
+END14;MIDDLE14;BEGIN14;OK
+THIRD15;SECOND15;FIRST15;OK
+GAMMA16;BETA16;ALPHA16;OK
+DOLOR17;IPSUM17;LOREM17;OK
+WEST18;EAST18;NORTH18;OK
+END19;MIDDLE19;BEGIN19;OK
+THIRD20;SECOND20;FIRST20;OK
+GAMMA21;BETA21;ALPHA21;OK
+DOLOR22;IPSUM22;LOREM22;OK
+WEST23;EAST23;NORTH23;OK
+END24;MIDDLE24;BEGIN24;OK
+THIRD25;SECOND25;FIRST25;OK
+GAMMA26;BETA26;ALPHA26;OK
+DOLOR27;IPSUM27;LOREM27;OK
+WEST28;EAST28;NORTH28;OK
+END29;MIDDLE29;BEGIN29;OK
+THIRD30;SECOND30;FIRST30;OK
+[?2004hroot@37fdc85395b5:/app# sed -n '6,10p' /app/expected.csv
+[?2004lGAMMA6;BETA6;ALPHA6;OK
+DOLOR7;IPSUM7;LOREM7;OK
+WEST8;EAST8;NORTH8;OK
+END9;MIDDLE9;BEGIN9;OK
+THIRD10;SECOND10;FIRST10;OK
+[?2004hroot@37fdc85395b5:/app# python3 << 'PYEOF'
+[?2004l[?2004h> # Regenerate original input.csv
+[?2004l[?2004h> # 5-line cycle with specific patterns
+[?2004l[?2004h> 
+[?2004l[?2004h> # Original mixed-case words (without numbers)
+[?2004l[?2004h> words = [
+[?2004l[?2004h>     # (col1, col2, col3)
+[?2004l[?2004h>     ('alpha', 'BeTa', 'GaMmA'),
+[?2004l[?2004h>     ('lorem', 'IpsUm', 'dolor'),
+[?2004l[?2004h>     ('north', 'EaSt', 'west'),
+[?2004l[?2004h>     ('begin', 'MiDdLe', 'end'),
+[?2004l[?2004h>     ('first', 'seCond', 'third'),
+[?2004l[?2004h> ]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Whitespace patterns: (leading_spaces, spaces_after_col1, spaces_after_comma1, spaces_after_col2, spaces_after_comma2)
+[?2004l[?2004h> # Reconstructed from original lines:
+[?2004l[?2004h> # Line 1: "  alpha1  ,    BeTa1   ,  GaMmA1"
+[?2004l[?2004h> # Line 2: "   lorem2   ,  IpsUm2   ,   dolor2"
+[?2004l[?2004h> # Line 3: " north3   ,   EaSt3    ,    west3"
+[?2004l[?2004h> # Line 4: "  begin4    ,    MiDdLe4    ,  end4"
+[?2004l[?2004h> # Line 5: "   first5    ,  seCond5  ,   third5"
+[?2004l[?2004h> 
+[?2004l[?2004h> patterns = [
+[?2004l[?2004h>     (2, 2, 4, 3, 2),
+[?2004l[?2004h>     (3, 3, 2, 3, 3),
+[?2004l[?2004h>     (1, 3, 3, 4, 4),
+[?2004l[?2004h>     (2, 4, 4, 4, 2),
+[?2004l[?2004h>     (3, 4, 2, 2, 3),
+[?2004l[?2004h> ]
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/input.csv', 'w') as f:
+[?2004l[?2004h>     for n in range(1, 1000001):
+[?2004l[?2004h>         idx = (n - 1) % 5
+[?2004l[?2004h>         c1, c2, c3 = words[idx]
+[?2004l[?2004h>         lead, s1, s2, s3, s4 = patterns[idx]
+[?2004l[?2004h>         line = f"{' '*lead}{c1}{n}{' '*s1},{' '*s2}{c2}{n}{' '*s3},{' '*s4}{c3}{n}\n"
+[?2004l[?2004h>         f.write(line)
+[?2004l[?2004h> 
+[?2004l[?2004h> print("Done generating input.csv")
+[?2004l[?2004h> PYEOF
+[?2004lDone generating input.csv
+[?2004hroot@37fdc85395b5:/app# head -5 /app/input.csv
+[?2004l  alpha1  ,    BeTa1   ,  GaMmA1
+   lorem2   ,  IpsUm2   ,   dolor2
+ north3   ,   EaSt3    ,    west3
+  begin4    ,    MiDdLe4    ,  end4
+   first5    ,  seCond5  ,   third5
+[?2004hroot@37fdc85395b5:/app# vim -Nu NONE -n -Es /app/input.csv -S /app/apply_macros.vim
+[?2004l[?2004hroot@37fdc85395b5:/app# diff /app/input.csv /app/expected.csv | head -5
+[?2004l[?2004hroot@37fdc85395b5:/app# python3 << 'PYEOF'
+[?2004l[?2004h> words = [
+[?2004l[?2004h>     ('alpha', 'BeTa', 'GaMmA'),
+[?2004l[?2004h>     ('lorem', 'IpsUm', 'dolor'),
+[?2004l[?2004h>     ('north', 'EaSt', 'west'),
+[?2004l[?2004h>     ('begin', 'MiDdLe', 'end'),
+[?2004l[?2004h>     ('first', 'seCond', 'third'),
+[?2004l[?2004h> ]
+[?2004l[?2004h> patterns = [
+[?2004l[?2004h>     (2, 2, 4, 3, 2),
+[?2004l[?2004h>     (3, 3, 2, 3, 3),
+[?2004l[?2004h>     (1, 3, 3, 4, 4),
+[?2004l[?2004h>     (2, 4, 4, 4, 2),
+[?2004l[?2004h>     (3, 4, 2, 2, 3),
+[?2004l[?2004h> ]
+[?2004l[?2004h> with open('/app/input.csv', 'w') as f:
+[?2004l[?2004h>     for n in range(1, 1000001):
+[?2004l[?2004h>         idx = (n - 1) % 5
+[?2004l[?2004h>         c1, c2, c3 = words[idx]
+[?2004l[?2004h>         lead, s1, s2, s3, s4 = patterns[idx]
+[?2004l[?2004h>         line = f"{' '*lead}{c1}{n}{' '*s1},{' '*s2}{c2}{n}{' '*s3},{' '*s4}{c3}{n}\n"
+[?2004l[?2004h>         f.write(line)
+[?2004l[?2004h> print("Done")
+[?2004l[?2004h> PYEOF
+[?2004lDone
+[?2004hroot@37fdc85395b5:/app# head -5 /app/input.csv
+[?2004l  alpha1  ,    BeTa1   ,  GaMmA1
+   lorem2   ,  IpsUm2   ,   dolor2
+ north3   ,   EaSt3    ,    west3
+  begin4    ,    MiDdLe4    ,  end4
+   first5    ,  seCond5  ,   third5
+[?2004hroot@37fdc85395b5:/app# cat /app/apply_macros.vim
+[?2004lcall setreg('a', ":s/^\\s*\\(\\S\\+\\)\\s*,\\s*\\(\\S\\+\\)\\s*,\\s*\\(\\S\\+\\)\\s*$/\\3;\\2;\\1/\r")
+call setreg('b', "gUU")
+call setreg('c', "A;OK\x1b")
+:%normal! @a
+:%normal! @b
+:%normal! @c
+:wq
+[?2004hroot@37fdc85395b5:/app# echo $PATH
+[?2004l/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+[?2004hroot@37fdc85395b5:/app# ls /usr/local/bin/
+[?2004lidle  idle3  idle3.13  pip  pip3  pip3.13  pydoc  pydoc3  pydoc3.13  python  python-config  python3  python3-config  python3.13  python3.13-config
+[?2004hroot@37fdc85395b5:/app# which vim
+[?2004l/usr/bin/vim
+[?2004hroot@37fdc85395b5:/app# wc -l /app/input.csv
+[?2004l1000000 /app/input.csv
+[?2004hroot@37fdc85395b5:/app# head -3 /app/input.csv
+[?2004l  alpha1  ,    BeTa1   ,  GaMmA1
+   lorem2   ,  IpsUm2   ,   dolor2
+ north3   ,   EaSt3    ,    west3
+[?2004hroot@37fdc85395b5:/app# cat /app/apply_macros.vim
+[?2004lcall setreg('a', ":s/^\\s*\\(\\S\\+\\)\\s*,\\s*\\(\\S\\+\\)\\s*,\\s*\\(\\S\\+\\)\\s*$/\\3;\\2;\\1/\r")
+call setreg('b', "gUU")
+call setreg('c', "A;OK\x1b")
+:%normal! @a
+:%normal! @b
+:%normal! @c
+:wq
+[?2004hroot@37fdc85395b5:/app# cp /app/input.csv /tmp/final_test.csv && vim -Nu NONE -n -Es /tmp/final_test.csv -S /app/apply_macros.vim && diff /tmp/final_test.csv /app/expected.csv | head -5 && echo 'MATCH OK' || echo 'MISMATCH'
+[?2004lMATCH OK
+[?2004hroot@37fdc85395b5:/app# 

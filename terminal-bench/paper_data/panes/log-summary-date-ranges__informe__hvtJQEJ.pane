@@ -1,0 +1,188 @@
+[?2004hroot@13f125b608e3:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@13f125b608e3:/app# clear
+[?2004l[H[J[3J[?2004hroot@13f125b608e3:/app# ls /app/logs/ | head -30
+[?2004l2025-07-03_api.log
+2025-07-03_app.log
+2025-07-03_auth.log
+2025-07-03_db.log
+2025-07-04_api.log
+2025-07-04_app.log
+2025-07-04_auth.log
+2025-07-04_db.log
+2025-07-05_api.log
+2025-07-05_app.log
+2025-07-05_auth.log
+2025-07-05_db.log
+2025-07-06_api.log
+2025-07-06_app.log
+2025-07-06_auth.log
+2025-07-06_db.log
+2025-07-07_api.log
+2025-07-07_app.log
+2025-07-07_auth.log
+2025-07-07_db.log
+2025-07-08_api.log
+2025-07-08_app.log
+2025-07-08_auth.log
+2025-07-08_db.log
+2025-07-09_api.log
+2025-07-09_app.log
+2025-07-09_auth.log
+2025-07-09_db.log
+2025-07-10_api.log
+2025-07-10_app.log
+[?2004hroot@13f125b608e3:/app# ls /app/logs/ | wc -l
+[?2004l164
+[?2004hroot@13f125b608e3:/app# head -5 /app/logs/$(ls /app/logs/ | head -1)
+[?2004l2025-07-03 09:24:57 [ERROR] Unhandled exception: FileNotFoundError
+2025-07-03 13:59:02 [INFO] Service auth started
+2025-07-03 05:34:40 [INFO] Service notification started
+2025-07-03 05:08:45 [INFO] Scheduled backup completed successfully
+2025-07-03 21:53:22 [INFO] File uploaded: config.yml
+[?2004hroot@13f125b608e3:/app# ls /app/logs/ | tail -10
+[?2004l2025-08-10_auth.log
+2025-08-10_db.log
+2025-08-11_api.log
+2025-08-11_app.log
+2025-08-11_auth.log
+2025-08-11_db.log
+2025-08-12_api.log
+2025-08-12_app.log
+2025-08-12_auth.log
+2025-08-12_db.log
+[?2004hroot@13f125b608e3:/app# ls /app/logs/ | sort -u | sed 's/_.*//g' | sort -u | head -5
+[?2004l2025-07-03
+2025-07-04
+2025-07-05
+2025-07-06
+2025-07-07
+[?2004hroot@13f125b608e3:/app# ls /app/logs/ | sort -u | sed 's/_.*//g' | sort -u | tail -5
+[?2004l2025-08-08
+2025-08-09
+2025-08-10
+2025-08-11
+2025-08-12
+[?2004hroot@13f125b608e3:/app# cat > /tmp/gen_summary.py << 'PYEOF'
+[?2004l[?2004h> import os
+[?2004l[?2004h> import re
+[?2004l[?2004h> from datetime import date, timedelta
+[?2004l[?2004h> 
+[?2004l[?2004h> REF_DATE = date(2025, 8, 12)
+[?2004l[?2004h> 
+[?2004l[?2004h> # Define date ranges
+[?2004l[?2004h> ranges = {
+[?2004l[?2004h>     'today': (REF_DATE, REF_DATE),
+[?2004l[?2004h>     'last_7_days': (REF_DATE - timedelta(days=6), REF_DATE),
+[?2004l[?2004h>     'last_30_days': (REF_DATE - timedelta(days=29), REF_DATE),
+[?2004l[?2004h>     'month_to_date': (date(REF_DATE.year, REF_DATE.month, 1), REF_DATE),
+[?2004l[?2004h>     'total': (None, None),
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> severities = ['ERROR', 'WARNING', 'INFO']
+[?2004l[?2004h> 
+[?2004l[?2004h> # Initialize counts
+[?2004l[?2004h> counts = {}
+[?2004l[?2004h> for period in ranges:
+[?2004l[?2004h>     counts[period] = {s: 0 for s in severities}
+[?2004l[?2004h> 
+[?2004l[?2004h> # Process each log file
+[?2004l[?2004h> log_dir = '/app/logs'
+[?2004l[?2004h> for fname in os.listdir(log_dir):
+[?2004l[?2004h>     if not fname.endswith('.log'):
+[?2004l[?2004h>         continue
+[?2004l[?2004h>     # Extract date from filename
+[?2004l[?2004h>     m = re.match(r'(\d{4}-\d{2}-\d{2})_', fname)
+[?2004l[?2004h>     if not m:
+[?2004l[?2004h>         continue
+[?2004l[?2004h>     parts = m.group(1).split('-')
+[?2004l[?2004h>     file_date = date(int(parts[0]), int(parts[1]), int(parts[2]))
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Count severities in this file
+[?2004l[?2004h>     file_counts = {s: 0 for s in severities}
+[?2004l[?2004h>     filepath = os.path.join(log_dir, fname)
+[?2004l[?2004h>     with open(filepath, 'r') as f:
+[?2004l[?2004h>         for line in f:
+[?2004l[?2004h>             for sev in severities:
+[?2004l[?2004h>                 if '[' + sev + ']' in line:
+[?2004l[?2004h>                     file_counts[sev] += 1
+[?2004l[?2004h>                     break
+[?2004l[?2004h>     
+[?2004l[?2004h>     # Add to appropriate periods
+[?2004l[?2004h>     for period, (start, end) in ranges.items():
+[?2004l[?2004h>         if period == 'total':
+[?2004l[?2004h>             for s in severities:
+[?2004l[?2004h>                 counts[period][s] += file_counts[s]
+[?2004l[?2004h>         elif start <= file_date <= end:
+[?2004l[?2004h>             for s in severities:
+[?2004l[?2004h>                 counts[period][s] += file_counts[s]
+[?2004l[?2004h> 
+[?2004l[?2004h> # Write CSV
+[?2004l[?2004h> with open('/app/summary.csv', 'w') as f:
+[?2004l[?2004h>     f.write('period,severity,count\n')
+[?2004l[?2004h>     for period in ['today', 'last_7_days', 'last_30_days', 'month_to_date', 'total']:
+[?2004l[?2004h>         for sev in severities:
+[?2004l[?2004h>             f.write(f'{period},{sev},{counts[period][sev]}\n')
+[?2004l[?2004h> 
+[?2004l[?2004h> print('Done. Summary written to /app/summary.csv')
+[?2004l[?2004h> PYEOF
+[?2004l[?2004hroot@13f125b608e3:/app# python3 /tmp/gen_summary.py
+[?2004lDone. Summary written to /app/summary.csv
+[?2004hroot@13f125b608e3:/app# cat /app/summary.csv
+[?2004lperiod,severity,count
+today,ERROR,370
+today,WARNING,463
+today,INFO,1433
+last_7_days,ERROR,2969
+last_7_days,WARNING,4020
+last_7_days,INFO,12203
+last_30_days,ERROR,9594
+last_30_days,WARNING,12847
+last_30_days,INFO,38702
+month_to_date,ERROR,4682
+month_to_date,WARNING,6327
+month_to_date,INFO,19420
+total,ERROR,14160
+total,WARNING,18772
+total,INFO,56621
+[?2004hroot@13f125b608e3:/app# review status
+[?2004lbash: review: command not found
+[?2004hroot@13f125b608e3:/app# which review || find / -name review -type f 2>/dev/null
+[?2004l[?2004hroot@13f125b608e3:/app# bash /opt/ci/verify.sh
+[?2004lbash: /opt/ci/verify.sh: No such file or directory
+[?2004hroot@13f125b608e3:/app# find / -name verify.sh 2>/dev/null
+[?2004l[?2004hroot@13f125b608e3:/app# find / -name review 2>/dev/null
+[?2004l[?2004hroot@13f125b608e3:/app# type review 2>/dev/null || alias review 2>/dev/null || echo 'not found'
+[?2004lnot found
+[?2004hroot@13f125b608e3:/app# ls /opt/ 2>/dev/null
+[?2004l[?2004hroot@13f125b608e3:/app# grep -c '\[ERROR\]' /app/logs/2025-08-12_*.log | awk -F: '{s+=$2} END {print s}'
+[?2004l370
+[?2004hroot@13f125b608e3:/app# grep -c '\[WARNING\]' /app/logs/2025-08-12_*.log | awk -F: '{s+=$2} END {print s}'
+[?2004l463
+[?2004hroot@13f125b608e3:/app# grep -c '\[INFO\]' /app/logs/2025-08-12_*.log | awk -F: '{s+=$2} END {print s}'
+[?2004l1433
+[?2004hroot@13f125b608e3:/app# grep -c '\[ERROR\]' /app/logs/*.log | awk -F: '{s+=$2} END {print s}'
+[?2004l14160
+[?2004hroot@13f125b608e3:/app# grep -c '\[WARNING\]' /app/logs/*.log | awk -F: '{s+=$2} END {print s}'
+[?2004l18772
+[?2004hroot@13f125b608e3:/app# grep -c '\[INFO\]' /app/logs/*.log | awk -F: '{s+=$2} END {print s}'
+[?2004l56621
+[?2004hroot@13f125b608e3:/app# cat /app/summary.csv
+[?2004lperiod,severity,count
+today,ERROR,370
+today,WARNING,463
+today,INFO,1433
+last_7_days,ERROR,2969
+last_7_days,WARNING,4020
+last_7_days,INFO,12203
+last_30_days,ERROR,9594
+last_30_days,WARNING,12847
+last_30_days,INFO,38702
+month_to_date,ERROR,4682
+month_to_date,WARNING,6327
+month_to_date,INFO,19420
+total,ERROR,14160
+total,WARNING,18772
+total,INFO,56621
+[?2004hroot@13f125b608e3:/app# 

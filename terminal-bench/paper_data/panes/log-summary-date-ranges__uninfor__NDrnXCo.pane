@@ -1,0 +1,163 @@
+[?2004hroot@edb650e8af8d:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@edb650e8af8d:/app# clear
+[?2004l[H[J[3J[?2004hroot@edb650e8af8d:/app# find /app/logs -maxdepth 1 -type f -name '*.log' -printf '%f\n' | sort | head -20 && printf '\n--- sample ---\n' && first=$(find /app/logs -maxdepth 1 -type f -name '*.log' | head -1); printf '%s\n' "$first"; head -5 "$first"
+[?2004l2025-07-03_api.log
+2025-07-03_app.log
+2025-07-03_auth.log
+2025-07-03_db.log
+2025-07-04_api.log
+2025-07-04_app.log
+2025-07-04_auth.log
+2025-07-04_db.log
+2025-07-05_api.log
+2025-07-05_app.log
+2025-07-05_auth.log
+2025-07-05_db.log
+2025-07-06_api.log
+2025-07-06_app.log
+2025-07-06_auth.log
+2025-07-06_db.log
+2025-07-07_api.log
+2025-07-07_app.log
+2025-07-07_auth.log
+2025-07-07_db.log
+
+--- sample ---
+find: ‘standard output’: Broken pipe
+find: write error
+/app/logs/2025-07-16_auth.log
+2025-07-16 09:47:09 [ERROR] Email sending failed to recipient: admin@google.com
+2025-07-16 23:22:55 [WARNING] Configuration file deprecated: config.yml
+2025-07-16 12:32:22 [ERROR] Service payment crashed
+2025-07-16 06:20:33 [INFO] Cache cleared successfully
+2025-07-16 09:05:27 [INFO] User login successful for user: charlie
+[?2004hroot@edb650e8af8d:/app# python3 - <<'PY'
+[?2004l[?2004h> from pathlib import Path
+[?2004l[?2004h> from datetime import date, timedelta
+[?2004l[?2004h> import re, csv
+[?2004l[?2004h> 
+[?2004l[?2004h> logdir = Path('/app/logs')
+[?2004l[?2004h> today = date(2025, 8, 12)
+[?2004l[?2004h> periods = [
+[?2004l[?2004h>     ('today', today),
+[?2004l[?2004h>     ('last_7_days', today - timedelta(days=6)),
+[?2004l[?2004h>     ('last_30_days', today - timedelta(days=29)),
+[?2004l[?2004h>     ('month_to_date', today.replace(day=1)),
+[?2004l[?2004h> ]
+[?2004l[?2004h> severities = ('ERROR', 'WARNING', 'INFO')
+[?2004l[?2004h> counts = {name: {sev: 0 for sev in severities} for name, _ in periods}
+[?2004l[?2004h> counts['total'] = {sev: 0 for sev in severities}
+[?2004l[?2004h> pattern = re.compile(r'\b(ERROR|WARNING|INFO)\b')
+[?2004l[?2004h> 
+[?2004l[?2004h> for path in logdir.glob('*.log'):
+[?2004l[?2004h>     file_date = date.fromisoformat(path.name[:10])
+[?2004l[?2004h>     per_file = {sev: 0 for sev in severities}
+[?2004l[?2004h>     with path.open(errors='replace') as f:
+[?2004l[?2004h>         for line in f:
+[?2004l[?2004h>             for sev in pattern.findall(line):
+[?2004l[?2004h>                 per_file[sev] += 1
+[?2004l[?2004h>     for sev, n in per_file.items():
+[?2004l[?2004h>         counts['total'][sev] += n
+[?2004l[?2004h>     for name, start in periods:
+[?2004l[?2004h>         if start <= file_date <= today:
+[?2004l[?2004h>             for sev, n in per_file.items():
+[?2004l[?2004h>                 counts[name][sev] += n
+[?2004l[?2004h> 
+[?2004l[?2004h> with open('/app/summary.csv', 'w', newline='') as f:
+[?2004l[?2004h>     w = csv.writer(f, lineterminator='\n')
+[?2004l[?2004h>     w.writerow(['period', 'severity', 'count'])
+[?2004l[?2004h>     for name in ('today', 'last_7_days', 'last_30_days', 'month_to_date', 'total'):
+[?2004l[?2004h>         for sev in severities:
+[?2004l[?2004h>             w.writerow([name, sev, counts[name][sev]])
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@edb650e8af8d:/app# cat /app/summary.csv
+[?2004lperiod,severity,count
+today,ERROR,414
+today,WARNING,463
+today,INFO,1433
+last_7_days,ERROR,3559
+last_7_days,WARNING,4020
+last_7_days,INFO,12203
+last_30_days,ERROR,11432
+last_30_days,WARNING,12847
+last_30_days,INFO,38702
+month_to_date,ERROR,5594
+month_to_date,WARNING,6327
+month_to_date,INFO,19420
+total,ERROR,16774
+total,WARNING,18772
+total,INFO,56621
+[?2004hroot@edb650e8af8d:/app# review status
+[?2004lbash: review: command not found
+[?2004hroot@edb650e8af8d:/app# python3 - <<'PY'
+[?2004l[?2004h> from pathlib import Path
+[?2004l[?2004h> from datetime import date, timedelta
+[?2004l[?2004h> from collections import Counter
+[?2004l[?2004h> import re
+[?2004l[?2004h> 
+[?2004l[?2004h> today = date(2025, 8, 12)
+[?2004l[?2004h> ranges = {'today': today, 'last_7_days': today-timedelta(days=6), 'last_30_days': today-timedelta(days=29), 'month_to_date': today.replace(day=1)}
+[?2004l[?2004h> counts = {p: Counter() for p in (*ranges, 'total')}
+[?2004l[?2004h> for p in Path('/app/logs').glob('*.log'):
+[?2004l[?2004h>     d = date.fromisoformat(p.name[:10])
+[?2004l[?2004h>     c = Counter(re.findall(r'\[(ERROR|WARNING|INFO)\]', p.read_text(errors='replace')))
+[?2004l[?2004h>     counts['total'].update(c)
+[?2004l[?2004h>     for period, start in ranges.items():
+[?2004l[?2004h>         if start <= d <= today:
+[?2004l[?2004h>             counts[period].update(c)
+[?2004l[?2004h> for period in ('today', 'last_7_days', 'last_30_days', 'month_to_date', 'total'):
+[?2004l[?2004h>     print(period, *(counts[period][s] for s in ('ERROR','WARNING','INFO')))
+[?2004l[?2004h> PY
+[?2004ltoday 370 463 1433
+last_7_days 2969 4020 12203
+last_30_days 9594 12847 38702
+month_to_date 4682 6327 19420
+total 14160 18772 56621
+[?2004hroot@edb650e8af8d:/app# python3 - <<'PY'
+[?2004l[?2004h> from pathlib import Path
+[?2004l[?2004h> from datetime import date, timedelta
+[?2004l[?2004h> from collections import Counter
+[?2004l[?2004h> import csv, re
+[?2004l[?2004h> 
+[?2004l[?2004h> today = date(2025, 8, 12)
+[?2004l[?2004h> ranges = [('today', today), ('last_7_days', today-timedelta(days=6)), ('last_30_days', today-timedelta(days=29)), ('month_to_date', today.replace(day=1))]
+[?2004l[?2004h> severities = ('ERROR', 'WARNING', 'INFO')
+[?2004l[?2004h> counts = {name: Counter() for name, _ in ranges}
+[?2004l[?2004h> counts['total'] = Counter()
+[?2004l[?2004h> for path in Path('/app/logs').glob('*.log'):
+[?2004l[?2004h>     d = date.fromisoformat(path.name[:10])
+[?2004l[?2004h>     events = Counter(re.findall(r'\[(ERROR|WARNING|INFO)\]', path.read_text(errors='replace')))
+[?2004l[?2004h>     counts['total'].update(events)
+[?2004l[?2004h>     for name, start in ranges:
+[?2004l[?2004h>         if start <= d <= today:
+[?2004l[?2004h>             counts[name].update(events)
+[?2004l[?2004h> with open('/app/summary.csv', 'w', newline='') as f:
+[?2004l[?2004h>     w = csv.writer(f, lineterminator='\n')
+[?2004l[?2004h>     w.writerow(('period', 'severity', 'count'))
+[?2004l[?2004h>     for name in ('today', 'last_7_days', 'last_30_days', 'month_to_date', 'total'):
+[?2004l[?2004h>         for severity in severities:
+[?2004l[?2004h>             w.writerow((name, severity, counts[name][severity]))
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@edb650e8af8d:/app# wc -l /app/summary.csv && cat /app/summary.csv
+[?2004l16 /app/summary.csv
+period,severity,count
+today,ERROR,370
+today,WARNING,463
+today,INFO,1433
+last_7_days,ERROR,2969
+last_7_days,WARNING,4020
+last_7_days,INFO,12203
+last_30_days,ERROR,9594
+last_30_days,WARNING,12847
+last_30_days,INFO,38702
+month_to_date,ERROR,4682
+month_to_date,WARNING,6327
+month_to_date,INFO,19420
+total,ERROR,14160
+total,WARNING,18772
+total,INFO,56621
+[?2004hroot@edb650e8af8d:/app# if [ -x /opt/ci/verify.sh ]; then /opt/ci/verify.sh; else echo 'Checker not present or not executable'; fi
+[?2004lChecker not present or not executable
+[?2004hroot@edb650e8af8d:/app# 

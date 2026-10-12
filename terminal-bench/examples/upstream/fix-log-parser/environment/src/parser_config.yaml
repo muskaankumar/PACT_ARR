@@ -1,0 +1,3 @@
+# Controls how parse_lines groups continuation lines.
+trace_indent: "  "
+strip_trace_whitespace: true

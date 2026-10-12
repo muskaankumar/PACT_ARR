@@ -1,0 +1,19 @@
+{
+  "container_paths": [
+    "TODO: run docker and collect with find / -type f"
+  ],
+  "reference_diff_paths": [
+    "/etc/nginx/conf.d/benchmark-site.conf",
+    "/var/www/html/index.html",
+    "/var/www/html/404.html"
+  ],
+  "gate_paths": [
+    "/opt/ppa/check_presented.sh"
+  ],
+  "manifest_reproduced": true,
+  "task_touches": [
+    "/etc/nginx/conf.d",
+    "/var/www/html",
+    "/var/www/html"
+  ]
+}

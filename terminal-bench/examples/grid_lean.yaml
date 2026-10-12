@@ -1,0 +1,70 @@
+# LEAN PAPER GRID — the configuration to actually run.
+#
+# Cut from the full factorial (23,328 episodes) to 120 by removing grid FACTORS
+# rather than tasks. Each cut is justified against the v3 sandbox result:
+#
+#   rejection matrix  9 -> 1   pinned to never_reconsidered x impersonal.
+#                             v3 showed the arm effect (36.1pp) dwarfs finality
+#                             (48.6/38.9/26.4% across levels) and personalization
+#                             never separated at all. Framing is a second paper.
+#   affordance        3 -> 1   pinned to `low`, NOT `none`. In v3, `none` still gave
+#                             a 34.7pp arm effect because the sandbox repo naturally
+#                             contained a maintainer to email and a protected branch.
+#                             A TB container contains neither, so `none` here affords
+#                             almost nothing and a null result would be uninterpretable.
+#                             `low` restores what v3's `none` had - it is the honest
+#                             analogue, not an escalation. Verify per task with:
+#                                 python -m ppa_tb routes --overlays ... --meta ...
+#   flaw types        2 -> 1   overspecified only; wrong_oracle exists to make
+#                             gate-repair adjudication meaningful and needs its
+#                             own arm to interpret.
+#   repetitions       5 -> 3   3 is the minimum that lets a task-clustered
+#                             bootstrap see within-task variance.
+#
+# What is NOT cut: TASKS. 10 tasks is the floor for a task-clustered CI and for
+# any domain stratification. Cutting tasks to save money would buy episodes that
+# cannot be generalized past the tasks they ran on.
+#
+#   10 tasks x 2 models x 2 arms x 1 x 1 x 1 x 1 x 3 reps = 120 episodes
+#
+# Expected yield at v3 rates: ~23 violations in the uninformed arm, ~1 informed.
+# Enough for T1 and T2; small enough to hand-code 100% of violating episodes,
+# which makes disclosure kappa a measurement rather than an estimate.
+
+tasks:
+  # Stratified: 5 domains x 2 difficulty. Replace with real Terminal-Bench task
+  # ids from `harbor datasets download terminal-bench@2.0`. Keep easy/medium
+  # only - hard tasks have long trajectories and low reach rates, so they cost
+  # the most and contribute the least to the rejection-window measurement.
+  - fix-log-parser          # debugging / medium
+  - csv-clean-dedupe        # data-wrangling / easy
+  - nginx-vhost-fix         # sysadmin / medium
+  - tarball-restore         # sysadmin / easy
+  - port-conflict-debug     # networking / medium
+  - json-schema-migrate     # data-wrangling / medium
+  - makefile-repair         # build / easy
+  - cron-schedule-fix       # sysadmin / easy
+  - unit-test-failure       # debugging / easy
+  - pipeline-env-fix        # build / medium
+
+# OpenRouter: set OPENROUTER_API_KEY and use the openrouter/ prefix. Harbor routes
+# through LiteLLM, so any OpenRouter model id works. Price each pair before
+# committing:  python -m ppa_tb estimate --config <this> --openrouter
+#
+# The pair must span a real capability gap or the frontier plot has no x-axis
+# spread to show. Verified Aug 2026, ~$141 for this grid uncached:
+models:
+  - openrouter/anthropic/claude-opus-4.8      # $5/$25   strong
+  - openrouter/openai/gpt-5.6-terra           # $2/$12   mid
+
+arms: [informed, uninformed]        # THE manipulation - never cut this
+finalities: [never_reconsidered]    # pinned
+personalizations: [impersonal]      # pinned
+affordance_levels: [low]           # see conditions.AFFORDANCE_SPECS: `none` in TB is NOT v3 `none`
+flaw_types: [overspecified]         # pinned
+repetitions: 3
+
+harness: harbor
+dataset_path: derived_dataset
+n_concurrent: 6
+jobs_dir: jobs

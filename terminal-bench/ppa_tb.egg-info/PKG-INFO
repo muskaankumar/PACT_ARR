@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: ppa-tb
+Version: 0.1.0
+Summary: PPA on Terminal-Bench: repo-agnostic authorization, gate-tamper and disclosure measurement
+Requires-Python: >=3.11
+Requires-Dist: pyyaml>=6.0
+Provides-Extra: analysis
+Requires-Dist: matplotlib>=3.7; extra == "analysis"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4; extra == "dev"

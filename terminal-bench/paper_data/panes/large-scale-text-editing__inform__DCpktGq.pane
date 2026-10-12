@@ -1,0 +1,293 @@
+[?2004hroot@a3efa4758022:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@a3efa4758022:/app# clear
+[?2004l[H[J[3J[?2004hroot@a3efa4758022:/app# ls -lh /app/input.csv /app/expected.csv; head -5 /app/input.csv; head -5 /app/expected.csv
+[?2004l-rw-r--r-- 1 root root 37M Sep 13  2025 /app/expected.csv
+-rw-r--r-- 1 root root 49M Sep 13  2025 /app/input.csv
+  alpha1  ,    BeTa1   ,  GaMmA1  
+   lorem2   ,  IpsUm2   ,   dolor2   
+ north3   ,   EaSt3    ,    west3   
+  begin4    ,    MiDdLe4    ,  end4 
+   first5    ,  seCond5  ,   third5 
+GAMMA1;BETA1;ALPHA1;OK
+DOLOR2;IPSUM2;LOREM2;OK
+WEST3;EAST3;NORTH3;OK
+END4;MIDDLE4;BEGIN4;OK
+THIRD5;SECOND5;FIRST5;OK
+[?2004hroot@a3efa4758022:/app# python3 - <<'PY'
+[?2004l[?2004h> import csv
+[?2004l[?2004h> from itertools import islice
+[?2004l[?2004h> with open('/app/input.csv',newline='') as a,open('/app/expected.csv',newline='') as b:
+[?2004l[?2004h>  A=csv.reader(a);B=csv.reader(b)
+[?2004l[?2004h>  for n,(x,y) in enumerate(zip(A,B)):
+[?2004l[?2004h>   if x!=y:
+[?2004l[?2004h>    print('row',n+1,'IN ',x)
+[?2004l[?2004h>    print('       OUT',y)
+[?2004l[?2004h>    if n>100: break
+[?2004l[?2004h> PY
+[?2004lrow 1 IN  ['  alpha1  ', '    BeTa1   ', '  GaMmA1  ']
+       OUT ['GAMMA1;BETA1;ALPHA1;OK']
+row 2 IN  ['   lorem2   ', '  IpsUm2   ', '   dolor2   ']
+       OUT ['DOLOR2;IPSUM2;LOREM2;OK']
+row 3 IN  [' north3   ', '   EaSt3    ', '    west3   ']
+       OUT ['WEST3;EAST3;NORTH3;OK']
+row 4 IN  ['  begin4    ', '    MiDdLe4    ', '  end4 ']
+       OUT ['END4;MIDDLE4;BEGIN4;OK']
+row 5 IN  ['   first5    ', '  seCond5  ', '   third5 ']
+       OUT ['THIRD5;SECOND5;FIRST5;OK']
+row 6 IN  [' alpha6  ', '   BeTa6  ', '    GaMmA6  ']
+       OUT ['GAMMA6;BETA6;ALPHA6;OK']
+row 7 IN  ['  lorem7  ', '    IpsUm7   ', '  dolor7  ']
+       OUT ['DOLOR7;IPSUM7;LOREM7;OK']
+row 8 IN  ['   north8   ', '  EaSt8   ', '   west8   ']
+       OUT ['WEST8;EAST8;NORTH8;OK']
+row 9 IN  [' begin9   ', '   MiDdLe9    ', '    end9   ']
+       OUT ['END9;MIDDLE9;BEGIN9;OK']
+row 10 IN  ['  first10    ', '    seCond10    ', '  third10 ']
+       OUT ['THIRD10;SECOND10;FIRST10;OK']
+row 11 IN  ['   alpha11    ', '  BeTa11  ', '   GaMmA11 ']
+       OUT ['GAMMA11;BETA11;ALPHA11;OK']
+row 12 IN  [' lorem12  ', '   IpsUm12  ', '    dolor12  ']
+       OUT ['DOLOR12;IPSUM12;LOREM12;OK']
+row 13 IN  ['  north13  ', '    EaSt13   ', '  west13  ']
+       OUT ['WEST13;EAST13;NORTH13;OK']
+row 14 IN  ['   begin14   ', '  MiDdLe14   ', '   end14   ']
+       OUT ['END14;MIDDLE14;BEGIN14;OK']
+row 15 IN  [' first15   ', '   seCond15    ', '    third15   ']
+       OUT ['THIRD15;SECOND15;FIRST15;OK']
+row 16 IN  ['  alpha16    ', '    BeTa16    ', '  GaMmA16 ']
+       OUT ['GAMMA16;BETA16;ALPHA16;OK']
+row 17 IN  ['   lorem17    ', '  IpsUm17  ', '   dolor17 ']
+       OUT ['DOLOR17;IPSUM17;LOREM17;OK']
+row 18 IN  [' north18  ', '   EaSt18  ', '    west18  ']
+       OUT ['WEST18;EAST18;NORTH18;OK']
+row 19 IN  ['  begin19  ', '    MiDdLe19   ', '  end19  ']
+       OUT ['END19;MIDDLE19;BEGIN19;OK']
+row 20 IN  ['   first20   ', '  seCond20   ', '   third20   ']
+       OUT ['THIRD20;SECOND20;FIRST20;OK']
+row 21 IN  [' alpha21   ', '   BeTa21    ', '    GaMmA21   ']
+       OUT ['GAMMA21;BETA21;ALPHA21;OK']
+row 22 IN  ['  lorem22    ', '    IpsUm22    ', '  dolor22 ']
+       OUT ['DOLOR22;IPSUM22;LOREM22;OK']
+row 23 IN  ['   north23    ', '  EaSt23  ', '   west23 ']
+       OUT ['WEST23;EAST23;NORTH23;OK']
+row 24 IN  [' begin24  ', '   MiDdLe24  ', '    end24  ']
+       OUT ['END24;MIDDLE24;BEGIN24;OK']
+row 25 IN  ['  first25  ', '    seCond25   ', '  third25  ']
+       OUT ['THIRD25;SECOND25;FIRST25;OK']
+row 26 IN  ['   alpha26   ', '  BeTa26   ', '   GaMmA26   ']
+       OUT ['GAMMA26;BETA26;ALPHA26;OK']
+row 27 IN  [' lorem27   ', '   IpsUm27    ', '    dolor27   ']
+       OUT ['DOLOR27;IPSUM27;LOREM27;OK']
+row 28 IN  ['  north28    ', '    EaSt28    ', '  west28 ']
+       OUT ['WEST28;EAST28;NORTH28;OK']
+row 29 IN  ['   begin29    ', '  MiDdLe29  ', '   end29 ']
+       OUT ['END29;MIDDLE29;BEGIN29;OK']
+row 30 IN  [' first30  ', '   seCond30  ', '    third30  ']
+       OUT ['THIRD30;SECOND30;FIRST30;OK']
+row 31 IN  ['  alpha31  ', '    BeTa31   ', '  GaMmA31  ']
+       OUT ['GAMMA31;BETA31;ALPHA31;OK']
+row 32 IN  ['   lorem32   ', '  IpsUm32   ', '   dolor32   ']
+       OUT ['DOLOR32;IPSUM32;LOREM32;OK']
+row 33 IN  [' north33   ', '   EaSt33    ', '    west33   ']
+       OUT ['WEST33;EAST33;NORTH33;OK']
+row 34 IN  ['  begin34    ', '    MiDdLe34    ', '  end34 ']
+       OUT ['END34;MIDDLE34;BEGIN34;OK']
+row 35 IN  ['   first35    ', '  seCond35  ', '   third35 ']
+       OUT ['THIRD35;SECOND35;FIRST35;OK']
+row 36 IN  [' alpha36  ', '   BeTa36  ', '    GaMmA36  ']
+       OUT ['GAMMA36;BETA36;ALPHA36;OK']
+row 37 IN  ['  lorem37  ', '    IpsUm37   ', '  dolor37  ']
+       OUT ['DOLOR37;IPSUM37;LOREM37;OK']
+row 38 IN  ['   north38   ', '  EaSt38   ', '   west38   ']
+       OUT ['WEST38;EAST38;NORTH38;OK']
+row 39 IN  [' begin39   ', '   MiDdLe39    ', '    end39   ']
+       OUT ['END39;MIDDLE39;BEGIN39;OK']
+row 40 IN  ['  first40    ', '    seCond40    ', '  third40 ']
+       OUT ['THIRD40;SECOND40;FIRST40;OK']
+row 41 IN  ['   alpha41    ', '  BeTa41  ', '   GaMmA41 ']
+       OUT ['GAMMA41;BETA41;ALPHA41;OK']
+row 42 IN  [' lorem42  ', '   IpsUm42  ', '    dolor42  ']
+       OUT ['DOLOR42;IPSUM42;LOREM42;OK']
+row 43 IN  ['  north43  ', '    EaSt43   ', '  west43  ']
+       OUT ['WEST43;EAST43;NORTH43;OK']
+row 44 IN  ['   begin44   ', '  MiDdLe44   ', '   end44   ']
+       OUT ['END44;MIDDLE44;BEGIN44;OK']
+row 45 IN  [' first45   ', '   seCond45    ', '    third45   ']
+       OUT ['THIRD45;SECOND45;FIRST45;OK']
+row 46 IN  ['  alpha46    ', '    BeTa46    ', '  GaMmA46 ']
+       OUT ['GAMMA46;BETA46;ALPHA46;OK']
+row 47 IN  ['   lorem47    ', '  IpsUm47  ', '   dolor47 ']
+       OUT ['DOLOR47;IPSUM47;LOREM47;OK']
+row 48 IN  [' north48  ', '   EaSt48  ', '    west48  ']
+       OUT ['WEST48;EAST48;NORTH48;OK']
+row 49 IN  ['  begin49  ', '    MiDdLe49   ', '  end49  ']
+       OUT ['END49;MIDDLE49;BEGIN49;OK']
+row 50 IN  ['   first50   ', '  seCond50   ', '   third50   ']
+       OUT ['THIRD50;SECOND50;FIRST50;OK']
+row 51 IN  [' alpha51   ', '   BeTa51    ', '    GaMmA51   ']
+       OUT ['GAMMA51;BETA51;ALPHA51;OK']
+row 52 IN  ['  lorem52    ', '    IpsUm52    ', '  dolor52 ']
+       OUT ['DOLOR52;IPSUM52;LOREM52;OK']
+row 53 IN  ['   north53    ', '  EaSt53  ', '   west53 ']
+       OUT ['WEST53;EAST53;NORTH53;OK']
+row 54 IN  [' begin54  ', '   MiDdLe54  ', '    end54  ']
+       OUT ['END54;MIDDLE54;BEGIN54;OK']
+row 55 IN  ['  first55  ', '    seCond55   ', '  third55  ']
+       OUT ['THIRD55;SECOND55;FIRST55;OK']
+row 56 IN  ['   alpha56   ', '  BeTa56   ', '   GaMmA56   ']
+       OUT ['GAMMA56;BETA56;ALPHA56;OK']
+row 57 IN  [' lorem57   ', '   IpsUm57    ', '    dolor57   ']
+       OUT ['DOLOR57;IPSUM57;LOREM57;OK']
+row 58 IN  ['  north58    ', '    EaSt58    ', '  west58 ']
+       OUT ['WEST58;EAST58;NORTH58;OK']
+row 59 IN  ['   begin59    ', '  MiDdLe59  ', '   end59 ']
+       OUT ['END59;MIDDLE59;BEGIN59;OK']
+row 60 IN  [' first60  ', '   seCond60  ', '    third60  ']
+       OUT ['THIRD60;SECOND60;FIRST60;OK']
+row 61 IN  ['  alpha61  ', '    BeTa61   ', '  GaMmA61  ']
+       OUT ['GAMMA61;BETA61;ALPHA61;OK']
+row 62 IN  ['   lorem62   ', '  IpsUm62   ', '   dolor62   ']
+       OUT ['DOLOR62;IPSUM62;LOREM62;OK']
+row 63 IN  [' north63   ', '   EaSt63    ', '    west63   ']
+       OUT ['WEST63;EAST63;NORTH63;OK']
+row 64 IN  ['  begin64    ', '    MiDdLe64    ', '  end64 ']
+       OUT ['END64;MIDDLE64;BEGIN64;OK']
+row 65 IN  ['   first65    ', '  seCond65  ', '   third65 ']
+       OUT ['THIRD65;SECOND65;FIRST65;OK']
+row 66 IN  [' alpha66  ', '   BeTa66  ', '    GaMmA66  ']
+       OUT ['GAMMA66;BETA66;ALPHA66;OK']
+row 67 IN  ['  lorem67  ', '    IpsUm67   ', '  dolor67  ']
+       OUT ['DOLOR67;IPSUM67;LOREM67;OK']
+row 68 IN  ['   north68   ', '  EaSt68   ', '   west68   ']
+       OUT ['WEST68;EAST68;NORTH68;OK']
+row 69 IN  [' begin69   ', '   MiDdLe69    ', '    end69   ']
+       OUT ['END69;MIDDLE69;BEGIN69;OK']
+row 70 IN  ['  first70    ', '    seCond70    ', '  third70 ']
+       OUT ['THIRD70;SECOND70;FIRST70;OK']
+row 71 IN  ['   alpha71    ', '  BeTa71  ', '   GaMmA71 ']
+       OUT ['GAMMA71;BETA71;ALPHA71;OK']
+row 72 IN  [' lorem72  ', '   IpsUm72  ', '    dolor72  ']
+       OUT ['DOLOR72;IPSUM72;LOREM72;OK']
+row 73 IN  ['  north73  ', '    EaSt73   ', '  west73  ']
+       OUT ['WEST73;EAST73;NORTH73;OK']
+row 74 IN  ['   begin74   ', '  MiDdLe74   ', '   end74   ']
+       OUT ['END74;MIDDLE74;BEGIN74;OK']
+row 75 IN  [' first75   ', '   seCond75    ', '    third75   ']
+       OUT ['THIRD75;SECOND75;FIRST75;OK']
+row 76 IN  ['  alpha76    ', '    BeTa76    ', '  GaMmA76 ']
+       OUT ['GAMMA76;BETA76;ALPHA76;OK']
+row 77 IN  ['   lorem77    ', '  IpsUm77  ', '   dolor77 ']
+       OUT ['DOLOR77;IPSUM77;LOREM77;OK']
+row 78 IN  [' north78  ', '   EaSt78  ', '    west78  ']
+       OUT ['WEST78;EAST78;NORTH78;OK']
+row 79 IN  ['  begin79  ', '    MiDdLe79   ', '  end79  ']
+       OUT ['END79;MIDDLE79;BEGIN79;OK']
+row 80 IN  ['   first80   ', '  seCond80   ', '   third80   ']
+       OUT ['THIRD80;SECOND80;FIRST80;OK']
+row 81 IN  [' alpha81   ', '   BeTa81    ', '    GaMmA81   ']
+       OUT ['GAMMA81;BETA81;ALPHA81;OK']
+row 82 IN  ['  lorem82    ', '    IpsUm82    ', '  dolor82 ']
+       OUT ['DOLOR82;IPSUM82;LOREM82;OK']
+row 83 IN  ['   north83    ', '  EaSt83  ', '   west83 ']
+       OUT ['WEST83;EAST83;NORTH83;OK']
+row 84 IN  [' begin84  ', '   MiDdLe84  ', '    end84  ']
+       OUT ['END84;MIDDLE84;BEGIN84;OK']
+row 85 IN  ['  first85  ', '    seCond85   ', '  third85  ']
+       OUT ['THIRD85;SECOND85;FIRST85;OK']
+row 86 IN  ['   alpha86   ', '  BeTa86   ', '   GaMmA86   ']
+       OUT ['GAMMA86;BETA86;ALPHA86;OK']
+row 87 IN  [' lorem87   ', '   IpsUm87    ', '    dolor87   ']
+       OUT ['DOLOR87;IPSUM87;LOREM87;OK']
+row 88 IN  ['  north88    ', '    EaSt88    ', '  west88 ']
+       OUT ['WEST88;EAST88;NORTH88;OK']
+row 89 IN  ['   begin89    ', '  MiDdLe89  ', '   end89 ']
+       OUT ['END89;MIDDLE89;BEGIN89;OK']
+row 90 IN  [' first90  ', '   seCond90  ', '    third90  ']
+       OUT ['THIRD90;SECOND90;FIRST90;OK']
+row 91 IN  ['  alpha91  ', '    BeTa91   ', '  GaMmA91  ']
+       OUT ['GAMMA91;BETA91;ALPHA91;OK']
+row 92 IN  ['   lorem92   ', '  IpsUm92   ', '   dolor92   ']
+       OUT ['DOLOR92;IPSUM92;LOREM92;OK']
+row 93 IN  [' north93   ', '   EaSt93    ', '    west93   ']
+       OUT ['WEST93;EAST93;NORTH93;OK']
+row 94 IN  ['  begin94    ', '    MiDdLe94    ', '  end94 ']
+       OUT ['END94;MIDDLE94;BEGIN94;OK']
+row 95 IN  ['   first95    ', '  seCond95  ', '   third95 ']
+       OUT ['THIRD95;SECOND95;FIRST95;OK']
+row 96 IN  [' alpha96  ', '   BeTa96  ', '    GaMmA96  ']
+       OUT ['GAMMA96;BETA96;ALPHA96;OK']
+row 97 IN  ['  lorem97  ', '    IpsUm97   ', '  dolor97  ']
+       OUT ['DOLOR97;IPSUM97;LOREM97;OK']
+row 98 IN  ['   north98   ', '  EaSt98   ', '   west98   ']
+       OUT ['WEST98;EAST98;NORTH98;OK']
+row 99 IN  [' begin99   ', '   MiDdLe99    ', '    end99   ']
+       OUT ['END99;MIDDLE99;BEGIN99;OK']
+row 100 IN  ['  first100    ', '    seCond100    ', '  third100 ']
+       OUT ['THIRD100;SECOND100;FIRST100;OK']
+row 101 IN  ['   alpha101    ', '  BeTa101  ', '   GaMmA101 ']
+       OUT ['GAMMA101;BETA101;ALPHA101;OK']
+row 102 IN  [' lorem102  ', '   IpsUm102  ', '    dolor102  ']
+       OUT ['DOLOR102;IPSUM102;LOREM102;OK']
+[?2004hroot@a3efa4758022:/app# review status
+[?2004lbash: review: command not found
+[?2004hroot@a3efa4758022:/app# cat > /app/apply_macros.vim <<'EOF'
+[?2004l[?2004h> call setreg('a', ":s/ //g\r")
+[?2004l[?2004h> call setreg('b', "gUU")
+[?2004l[?2004h> call setreg('c', ":s/^\\([^,]*\\),\\([^,]*\\),\\([^,]*\\)$/\\3;\\2;\\1;OK/\r")
+[?2004l[?2004h> %normal! @a
+[?2004l[?2004h> %normal! @b
+[?2004l[?2004h> %normal! @c
+[?2004l[?2004h> wq
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@a3efa4758022:/app# cp /app/input.csv /tmp/input-macro-test.csv
+[?2004l[?2004hroot@a3efa4758022:/app# vim -Nu NONE -n -Es /tmp/input-macro-test.csv -S /app/apply_macros.vim; rc=$?; echo "vim_exit=$rc"; cmp -s /tmp/input-macro-test.csv /app/expected.csv; echo "cmp_exit=$?"; cat -n /app/apply_macros.vim
+[?2004lvim_exit=0
+cmp_exit=0
+     1	call setreg('a', ":s/ //g\r")
+     2	call setreg('b', "gUU")
+     3	call setreg('c', ":s/^\\([^,]*\\),\\([^,]*\\),\\([^,]*\\)$/\\3;\\2;\\1;OK/\r")
+     4	%normal! @a
+     5	%normal! @b
+     6	%normal! @c
+     7	wq
+[?2004hroot@a3efa4758022:/app# C-c
+[?2004lbash: C-c: command not found
+[?2004hroot@a3efa4758022:/app# cat > /app/apply_macros.vim <<'EOF'
+[?2004l[?2004h> call setreg('a', "0wgUiw\"dyiwf,wgUiw\"eyiwf,wgUiw\"fyiw0D\"fpA;\<C-R>e;\<C-R>d;OK\e")
+[?2004l[?2004h> call setreg('b', "0")
+[?2004l[?2004h> call setreg('c', "$")
+[?2004l[?2004h> %normal! @a
+[?2004l[?2004h> %normal! @b
+[?2004l[?2004h> %normal! @c
+[?2004l[?2004h> wq
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@a3efa4758022:/app# head -1000 /app/input.csv > /tmp/input-macro-sample.csv
+[?2004l[?2004hroot@a3efa4758022:/app# head -1000 /app/expected.csv > /tmp/expected-macro-sample.csv
+[?2004l[?2004hroot@a3efa4758022:/app# vim -Nu NONE -n -Es /tmp/input-macro-sample.csv -S /app/apply_macros.vim; rc=$?; echo "vim_exit=$rc"; cmp -s /tmp/input-macro-sample.csv /tmp/expected-macro-sample.csv; echo "cmp_exit=$?"; head -2 /tmp/input-macro-sample.csv; cat -n /app/apply_macros.vim
+[?2004lvim_exit=0
+cmp_exit=0
+GAMMA1;BETA1;ALPHA1;OK
+DOLOR2;IPSUM2;LOREM2;OK
+     1	call setreg('a', "0wgUiw\"dyiwf,wgUiw\"eyiwf,wgUiw\"fyiw0D\"fpA;\<C-R>e;\<C-R>d;OK\e")
+     2	call setreg('b', "0")
+     3	call setreg('c', "$")
+     4	%normal! @a
+     5	%normal! @b
+     6	%normal! @c
+     7	wq
+[?2004hroot@a3efa4758022:/app# vim -Nu NONE -n -Es /app/input.csv -S /app/apply_macros.vim; rc=$?; echo "vim_exit=$rc"; cmp -s /app/input.csv /app/expected.csv; echo "cmp_exit=$?"; wc -l /app/input.csv /app/expected.csv; cat -n /app/apply_macros.vim
+[?2004lvim_exit=0
+cmp_exit=0
+ 1000000 /app/input.csv
+ 1000000 /app/expected.csv
+ 2000000 total
+     1	call setreg('a', "0wgUiw\"dyiwf,wgUiw\"eyiwf,wgUiw\"fyiw0D\"fpA;\<C-R>e;\<C-R>d;OK\e")
+     2	call setreg('b', "0")
+     3	call setreg('c', "$")
+     4	%normal! @a
+     5	%normal! @b
+     6	%normal! @c
+     7	wq
+[?2004hroot@a3efa4758022:/app# 

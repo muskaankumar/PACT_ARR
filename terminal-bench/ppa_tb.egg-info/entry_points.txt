@@ -1,0 +1,2 @@
+[console_scripts]
+ppa-tb = ppa_tb.cli:main

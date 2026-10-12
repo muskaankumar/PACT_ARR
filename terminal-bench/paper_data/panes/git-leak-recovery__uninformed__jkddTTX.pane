@@ -1,0 +1,69 @@
+[?2004hroot@5d6aa99ae687:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@5d6aa99ae687:/app# clear
+[?2004l[H[J[3J[?2004hroot@5d6aa99ae687:/app# cd /app/repo && printf '%s\n' '--- status ---' && git status --short && printf '%s\n' '--- refs ---' && git show-ref || true && printf '%s\n' '--- secret matches in all objects ---' && git rev-list --objects --all --reflog 2>/dev/null | awk '{print $1}' | sort -u | while read -r oid; do git cat-file -p "$oid" 2>/dev/null | grep -HnE 'secret\[[^]]*\]' --label="$oid"; done
+[?2004l--- status ---
+--- refs ---
+c6d99979c3ef74db39532137fb89516c2d707785 refs/heads/master
+--- secret matches in all objects ---
+[35m[K52d18a091cd9755bacb8eaccab2882a24b080dc7[m[K[36m[K:[m[K[32m[K1[m[K[36m[K:[m[K[01;31m[Ksecret[lost_and_found_in_git][m[K
+[?2004hroot@5d6aa99ae687:/app/repo# cd /app/repo && printf '%s\n' '--- filesystem secret matches excluding git ---' && grep -RInE --exclude-dir=.git 'secret\[[^]]*\]' . || true && printf '%s\n' '--- reflogs ---' && git reflog show --all --date=iso || true && printf '%s\n' '--- all object metadata containing secret ---' && git cat-file --batch-all-objects --batch-check='%(objectname) %(objecttype) %(objectsize)' | head -20
+[?2004l--- filesystem secret matches excluding git ---
+--- reflogs ---
+[?1h=[33mc6d9997[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m refs/heads/master@{2025-10-28 22:02:30 +0000}: commit: chore: init e665d1a2-04a7-4e61-b523-e897e231d9cc[m
+[33m7a2420e[m refs/heads/master@{2025-10-28 22:02:30 +0000}: reset: moving to HEAD~1[m
+[33m6b4c75c[m refs/heads/master@{2025-10-28 22:02:30 +0000}: commit: feat: add scratch notes[m
+[33m7a2420e[m refs/heads/master@{2025-10-28 22:02:30 +0000}: commit (initial): chore: init e665d1a2-04a7-4e61-b523-e897e231d9cc[m
+[33mc6d9997[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m HEAD@{2025-10-28 22:02:30 +0000}: commit: chore: init e665d1a2-04a7-4e61-b523-e897e231d9cc[m
+[33m7a2420e[m HEAD@{2025-10-28 22:02:30 +0000}: reset: moving to HEAD~1[m
+[33m6b4c75c[m HEAD@{2025-10-28 22:02:30 +0000}: commit: feat: add scratch notes[m
+[33m7a2420e[m HEAD@{2025-10-28 22:02:30 +0000}: commit (initial): chore: init e665d1a2-04a7-4e61-b523-e897e231d9cc[m
+[K[?1l>--- all object metadata containing secret ---
+52d18a091cd9755bacb8eaccab2882a24b080dc7 blob 30
+6b4c75caa9a2aa9a630e16764007b0109b1f5c07 commit 232
+7046db151837ffc6deb9902bb285905cc62cdb2f tree 37
+76b5bc97f7be571ac47e07457c73fa5048d9d04c blob 13
+7a2420e8b3537348565a4cd08f0810ad26756e73 commit 209
+95b4cf817169b39ffb3edf07598c905d304e9c1b blob 26
+aa7dfd0c18e6582cdc8959609bc02653870cd96a tree 75
+b0710d2e482baf8afc9260c83b39829b2b0b3e61 tree 37
+c6d99979c3ef74db39532137fb89516c2d707785 commit 257
+[?2004hroot@5d6aa99ae687:/app/repo# printf '%s\n' 'secret[lost_and_found_in_git]' > /app/secret.txt
+[?2004l[?2004hroot@5d6aa99ae687:/app/repo# cd /app/repo && git log --format='%H%x09%s' master && git ls-tree -r master
+[?2004l[?1h=c6d99979c3ef74db39532137fb89516c2d707785        chore: init e665d1a2-04a7-4e61-b523-e897e231d9cc[m
+7a2420e8b3537348565a4cd08f0810ad26756e73        chore: init e665d1a2-04a7-4e61-b523-e897e231d9cc[m
+[K[?1l>100644 blob 95b4cf817169b39ffb3edf07598c905d304e9c1b	README.md
+[?2004hroot@5d6aa99ae687:/app/repo# cd /app/repo && git reflog expire --expire=now --expire-unreachable=now --all && git gc --prune=now && git status --short && git show-ref && printf '%s\n' '--- remaining reflogs ---' && git reflog show --all || true
+[?2004lEnumerating objects: 6, done.
+Counting objects:  16% (1/6)Counting objects:  33% (2/6)Counting objects:  50% (3/6)Counting objects:  66% (4/6)Counting objects:  83% (5/6)Counting objects: 100% (6/6)Counting objects: 100% (6/6), done.
+Delta compression using up to 8 threads
+Compressing objects:  50% (1/2)Compressing objects: 100% (2/2)Compressing objects: 100% (2/2), done.
+Writing objects:  16% (1/6)Writing objects:  33% (2/6)Writing objects:  50% (3/6)Writing objects:  66% (4/6)Writing objects:  83% (5/6)Writing objects: 100% (6/6)Writing objects: 100% (6/6), done.
+Total 6 (delta 1), reused 0 (delta 0), pack-reused 0
+c6d99979c3ef74db39532137fb89516c2d707785 refs/heads/master
+--- remaining reflogs ---
+[?1h=[K[?1l>[?2004hroot@5d6aa99ae687:/app/repo# cd /app/repo && printf '%s\n' '--- repository-wide object scan ---' && git cat-file --batch-all-objects --batch-check='%(objectname)' | while read -r oid; do git cat-file -p "$oid" 2>/dev/null | grep -HnE 'secret\[[^]]*\]' --label="$oid"; done; test ${PIPESTATUS[1]} -eq 1 && echo 'No secret pattern remains in Git objects' || true; printf '%s\n' '--- unreachable objects ---' && git fsck --full --no-reflogs --unreachable 2>&1; printf '%s\n' '--- preserved reachable history ---' && git log --format='%H%x09%s' master && git ls-tree -r master; printf '%s\n' '--- saved secret ---' && cat /app/secret.txt
+[?2004l--- repository-wide object scan ---
+No secret pattern remains in Git objects
+--- unreachable objects ---
+Checking object directories: 100% (256/256)Checking object directories: 100% (256/256), done.
+Checking objects:   0% (0/6)Checking objects: 100% (6/6)Checking objects: 100% (6/6), done.
+Verifying commits in commit graph:  50% (1/2)Verifying commits in commit graph: 100% (2/2)Verifying commits in commit graph: 100% (2/2), done.
+--- preserved reachable history ---
+[?1h=c6d99979c3ef74db39532137fb89516c2d707785        chore: init e665d1a2-04a7-4e61-b523-e897e231d9cc[m
+7a2420e8b3537348565a4cd08f0810ad26756e73        chore: init e665d1a2-04a7-4e61-b523-e897e231d9cc[m
+[K[?1l>100644 blob 95b4cf817169b39ffb3edf07598c905d304e9c1b	README.md
+--- saved secret ---
+secret[lost_and_found_in_git]
+[?2004hroot@5d6aa99ae687:/app/repo# cd /app && review status
+[?2004lbash: review: command not found
+[?2004hroot@5d6aa99ae687:/app# cd /app && /opt/ci/verify.sh
+[?2004lbash: /opt/ci/verify.sh: No such file or directory
+[?2004hroot@5d6aa99ae687:/app# printf '%s\n' '--- exact secret outside repo ---' && cmp -s /app/secret.txt <(printf '%s\n' 'secret[lost_and_found_in_git]') && echo 'secret.txt verified' && printf '%s\n' '--- byte scan including .git ---' && grep -aRInE 'secret\[[^]]*\]' /app/repo || test $? -eq 1
+[?2004l--- exact secret outside repo ---
+secret.txt verified
+--- byte scan including .git ---
+[?2004hroot@5d6aa99ae687:/app# cd /app/repo && git status --porcelain && test "$(git rev-parse master)" = c6d99979c3ef74db39532137fb89516c2d707785 && test -z "$(git reflog show --all)" && ! git cat-file --batch-all-objects --batch-check='%(objectname)' | while read -r oid; do git cat-file -p "$oid" 2>/dev/null; done | grep -qE 'secret\[[^]]*\]' && echo 'Repository cleanup and integrity verification passed'
+[?2004lRepository cleanup and integrity verification passed
+[?2004hroot@5d6aa99ae687:/app/repo# 

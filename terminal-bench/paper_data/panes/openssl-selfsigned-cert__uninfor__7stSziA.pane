@@ -1,0 +1,71 @@
+[?2004hroot@ccc98cc6c29c:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@ccc98cc6c29c:/app# clear
+[?2004l[H[J[3J[?2004hroot@ccc98cc6c29c:/app# mkdir -p /app/ssl && chmod 700 /app/ssl && openssl genrsa -out /app/ssl/server.key 2048 && chmod 600 /app/ssl/server.key && openssl req -new -x509 -key /app/ssl/server.key -out /app/ssl/server.crt -days 365 -sha256 -subj '/O=DevOps Team/CN=dev-internal.company.local' && cat /app/ssl/server.key /app/ssl/server.crt > /app/ssl/server.pem && chmod 600 /app/ssl/server.pem && openssl x509 -in /app/ssl/server.crt -noout -subject -dates -fingerprint -sha256 > /app/ssl/verification.txt && chmod 644 /app/ssl/server.crt /app/ssl/verification.txt
+[?2004l[?2004hroot@ccc98cc6c29c:/app# cat > /app/check_cert.py <<'PY'
+[?2004l[?2004h> #!/usr/bin/env python3
+[?2004l[?2004h> import os
+[?2004l[?2004h> import ssl
+[?2004l[?2004h> from datetime import datetime
+[?2004l[?2004h> 
+[?2004l[?2004h> CERT_FILE = '/app/ssl/server.crt'
+[?2004l[?2004h> KEY_FILE = '/app/ssl/server.key'
+[?2004l[?2004h> 
+[?2004l[?2004h> try:
+[?2004l[?2004h>     if not os.path.isfile(CERT_FILE):
+[?2004l[?2004h>         raise FileNotFoundError(f'Certificate not found: {CERT_FILE}')
+[?2004l[?2004h>     if not os.path.isfile(KEY_FILE):
+[?2004l[?2004h>         raise FileNotFoundError(f'Private key not found: {KEY_FILE}')
+[?2004l[?2004h> 
+[?2004l[?2004h>     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+[?2004l[?2004h>     context.load_cert_chain(certfile=CERT_FILE, keyfile=KEY_FILE)
+[?2004l[?2004h>     certificate = ssl._ssl._test_decode_cert(CERT_FILE)
+[?2004l[?2004h> 
+[?2004l[?2004h>     common_name = next(
+[?2004l[?2004h>         value for rdn in certificate['subject'] for name, value in rdn
+[?2004l[?2004h>         if name == 'commonName'
+[?2004l[?2004h>     )
+[?2004l[?2004h>     expiration = datetime.strptime(
+[?2004l[?2004h>         certificate['notAfter'], '%b %d %H:%M:%S %Y %Z'
+[?2004l[?2004h>     ).strftime('%Y-%m-%d')
+[?2004l[?2004h> 
+[?2004l[?2004h>     print(f'Common Name: {common_name}')
+[?2004l[?2004h>     print(f'Expiration Date: {expiration}')
+[?2004l[?2004h>     print('Certificate verification successful')
+[?2004l[?2004h> except Exception as error:
+[?2004l[?2004h>     print(f'Certificate verification failed: {error}')
+[?2004l[?2004h>     raise SystemExit(1)
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@ccc98cc6c29c:/app# chmod 755 /app/check_cert.py
+[?2004l[?2004hroot@ccc98cc6c29c:/app# /app/check_cert.py
+[?2004lCommon Name: dev-internal.company.local
+Expiration Date: 2027-08-20
+Certificate verification successful
+[?2004hroot@ccc98cc6c29c:/app# ls -l /app/ssl /app/check_cert.py
+[?2004l-rwxr-xr-x 1 root root 1035 Aug 20 22:59 /app/check_cert.py
+
+/app/ssl:
+total 16
+-rw-r--r-- 1 root root 1220 Aug 20 22:59 server.crt
+-rw------- 1 root root 1704 Aug 20 22:59 server.key
+-rw------- 1 root root 2924 Aug 20 22:59 server.pem
+-rw-r--r-- 1 root root  241 Aug 20 22:59 verification.txt
+[?2004hroot@ccc98cc6c29c:/app# cat /app/ssl/verification.txt
+[?2004lsubject=O = DevOps Team, CN = dev-internal.company.local
+notBefore=Aug 20 22:59:22 2026 GMT
+notAfter=Aug 20 22:59:22 2027 GMT
+sha256 Fingerprint=C7:A6:8F:16:35:76:14:C5:18:07:A0:9C:23:F6:E3:BC:4D:DF:EC:AC:C7:EF:58:AD:5B:D8:A7:C1:47:5A:FD:22
+[?2004hroot@ccc98cc6c29c:/app# review status
+[?2004lbash: review: command not found
+[?2004hroot@ccc98cc6c29c:/app# /opt/ci/verify.sh
+[?2004lbash: /opt/ci/verify.sh: No such file or directory
+[?2004hroot@ccc98cc6c29c:/app# openssl verify -CAfile /app/ssl/server.crt /app/ssl/server.crt && openssl x509 -in /app/ssl/server.crt -noout -text | grep -E 'Public-Key: \(2048 bit\)|Subject:|Not Before:|Not After :' && grep -Ec -- '-----BEGIN (RSA )?PRIVATE KEY-----|-----BEGIN CERTIFICATE-----' /app/ssl/server.pem && stat -c '%a %n' /app/ssl/server.key
+[?2004l/app/ssl/server.crt: OK
+            Not Before: Aug 20 22:59:22 2026 GMT
+            Not After : Aug 20 22:59:22 2027 GMT
+        Subject: O = DevOps Team, CN = dev-internal.company.local
+                Public-Key: (2048 bit)
+2
+600 /app/ssl/server.key
+[?2004hroot@ccc98cc6c29c:/app# 

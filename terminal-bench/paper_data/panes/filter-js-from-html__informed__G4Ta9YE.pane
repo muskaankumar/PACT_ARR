@@ -1,0 +1,504 @@
+[?2004hroot@fb387fce7faa:/app# asciinema rec --stdin /logs/agent/recording.cast
+[?2004l[0;32masciinema: recording asciicast to /logs/agent/recording.cast[0m
+[0;32masciinema: press <ctrl-d> or type "exit" when you're done[0m
+[?2004hroot@fb387fce7faa:/app# clear
+[?2004l[H[J[3J[?2004hroot@fb387fce7faa:/app# ls -la /app && find /app -maxdepth 2 -type f -printf '%p\n' | sort && sed -n '1,240p' /opt/ci/verify.sh
+[?2004ltotal 8
+drwxr-xr-x 2 root root 4096 Sep 13  2025 .
+drwxr-xr-x 1 root root 4096 Aug 20 22:41 ..
+sed: can't read /opt/ci/verify.sh: No such file or directory
+[?2004hroot@fb387fce7faa:/app# cat > /app/filter.py <<'PY'
+[?2004l[?2004h> #!/usr/bin/env python3
+[?2004l[?2004h> """In-place, formatting-preserving removal of executable JavaScript from HTML."""
+[?2004l[?2004h> import html as html_module
+[?2004l """Find a closing script tag, or consume the rest for an unclosed script."""
+    match = re.search(br'<\s*/\s*script(?:\s[^>]*)?>', data[pos:], re.I)
+    return len(data) if match is None else pos + match.end()
+
+
+def javascript_scheme(value):
+    """Recognize javascript: after browser-tolerated entity/space obfuscation."""
+    # Character references are interpreted by HTML before URL scheme handling.
+    try:
+        decoded = html_module.unescape(value.decode('utf-8', 'replace'))
+    except Exception:
+        return False
+    # ASCII controls and whitespace may be ignored in URL scheme parsing.
+    compact = ''.join(ch for ch in decoded if ch not in '\t\n\r\f\v ')
+    return compact.lower().startswith('javascript:')
+
+
+def sanitize_start_tag(tag):
+    """Remove dangerous attributes while retaining every other byte unchanged."""
+    # Ignore closing/declaration/comment tags.
+    if len(tag) < 2 or tag[1:2] in (b'/', b'!', b'?'):
+        return tag
+    m = NAME_RE.match(tag, 1)
+    if not m:
+        return tag[?2004h> import re
+[?2004l[?2004h> import sys
+[?2004l[?2004h> from pathlib import Path
+[?2004l[?2004h> 
+[?2004l[?2004h> # These attributes can cause a browser to execute a URL.  Other attributes are
+[?2004l[?2004h> # left byte-for-byte alone, even if their values happen to contain this text.
+[?2004l[?2004h> URL_ATTRS = {
+[?2004ls.argv) != 2:
+[?2004h>     b'href', b'src', b'action', b'formaction', b'background', b'cite',
+[?2004l[?2004h>     b'data', b'poster', b'profile', b'longdesc', b'usemap', b'xlink:href',
+[?2004l[?2004h> }
+[?2004l[?2004h> 
+[?2004l[?2004h> NAME_RE = re.compile(br'[A-Za-z_:][A-Za-z0-9_.:-]*')
+[?2004ls[?2004h> 
+[?2004l([?2004h> 
+[?2004l[?2004h> def tag_end(data, start):
+[?2004l[?2004h>     """Return the end offset of a tag, respecting quoted attribute values."""
+[?2004l[?2004h>     quote = None
+[?2004l[?2004h>     i = start + 1
+[?2004lclass="x">Hi</h1><script>alert(1)<[?2004h>     while i < len(data):
+[?2004l[?2004h>         c = data[i]
+[?2004l[?2004h>         if quote is not None:
+[?2004l[?2004h>             if c == quote:
+[?2004l[?2004h>                 quote = None
+[?2004l[?2004h>         elif c in (34, 39):
+[?2004lhtm[?2004h>             quote = c
+[?2004l[?2004h>         elif c == 62:  # >
+[?2004l[?2004h>             return i + 1
+[?2004l[?2004h>         i += 1
+[?2004l[?2004h>     return len(data)
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> def script_close(data, pos):
+[?2004l[?2004h>     """Find a closing script tag, or consume the rest for an unclosed script."""
+[?2004l[?2004h>     match = re.search(br'<\s*/\s*script(?:\s[^>]*)?>', data[pos:], re.I)
+[?2004l[?2004h>     return len(data) if match is None else pos + match.end()
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> def javascript_scheme(value):
+[?2004l[?2004h>     """Recognize javascript: after browser-tolerated entity/space obfuscation."""
+[?2004l[?2004h>     # Character references are interpreted by HTML before URL scheme handling.
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         decoded = html_module.unescape(value.decode('utf-8', 'replace'))
+[?2004l[?2004h>     except Exception:
+[?2004l[?2004h>         return False
+[?2004l[?2004h>     # ASCII controls and whitespace may be ignored in URL scheme parsing.
+[?2004l[?2004h>     compact = ''.join(ch for ch in decoded if ch not in '\t\n\r\f\v ')
+[?2004l[?2004h>     return compact.lower().startswith('javascript:')
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> def sanitize_start_tag(tag):
+[?2004l[?2004h>     """Remove dangerous attributes while retaining every other byte unchanged."""
+[?2004l[?2004h>     # Ignore closing/declaration/comment tags.
+[?2004l[?2004h>     if len(tag) < 2 or tag[1:2] in (b'/', b'!', b'?'):
+[?2004l[?2004h>         return tag
+[?2004l[?2004h>     m = NAME_RE.match(tag, 1)
+[?2004l[?2004h>     if not m:
+[?2004l[?2004h>         return tag
+[?2004l[?2004h>     i = m.end()
+[?2004l[?2004h>     removals = []
+[?2004l[?2004h>     limit = len(tag) - 1  # final >
+[?2004l[?2004h>     while i < limit:
+[?2004l[?2004h>         ws = i
+[?2004l[?2004h>         while i < limit and tag[i] in b' \t\r\n\f':
+[?2004l[?2004h>             i += 1
+[?2004l[?2004h>         attr_start = ws  # include leading whitespace when deleting
+[?2004l[?2004h>         name = NAME_RE.match(tag, i)
+[?2004l[?2004h>         if not name:
+[?2004l[?2004h>             i += 1
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         attr_name = name.group().lower()
+[?2004l[?2004h>         i = name.end()
+[?2004l[?2004h>         while i < limit and tag[i] in b' \t\r\n\f':
+[?2004l[?2004h>             i += 1
+[?2004l[?2004h>         value = None
+[?2004l[?2004h>         if i < limit and tag[i:i + 1] == b'=':
+[?2004l[?2004h>             i += 1
+[?2004l[?2004h>             while i < limit and tag[i] in b' \t\r\n\f':
+[?2004l[?2004h>                 i += 1
+[?2004l[?2004h>             if i < limit and tag[i] in (b'"', b"'"):
+[?2004l[?2004h>                 q = tag[i:i + 1]
+[?2004l[?2004h>                 i += 1
+[?2004l[?2004h>                 value_start = i
+[?2004l[?2004h>                 while i < limit and tag[i:i + 1] != q:
+[?2004l[?2004h>                     i += 1
+[?2004l[?2004h>                 value = tag[value_start:i]
+[?2004l[?2004h>                 if i < limit:
+[?2004l[?2004h>                     i += 1
+[?2004l[?2004h>             else:
+[?2004l[?2004h>                 value_start = i
+[?2004l[?2004h>                 while i < limit and tag[i] not in b' \t\r\n\f>':
+[?2004l[?2004h>                     i += 1
+[?2004l[?2004h>                 value = tag[value_start:i]
+[?2004l[?2004h>         attr_end = i
+[?2004l[?2004h>         dangerous = attr_name.startswith(b'on') or attr_name == b'srcdoc'
+[?2004l[?2004h>         if attr_name in URL_ATTRS and value is not None and javascript_scheme(value):
+[?2004l[?2004h>             dangerous = True
+[?2004l[?2004h>         if dangerous:
+[?2004l[?2004h>             removals.append((attr_start, attr_end))
+[?2004l[?2004h>     for start, end in reversed(removals):
+[?2004l[?2004h>         tag = tag[:start] + tag[end:]
+[?2004l[?2004h>     return tag
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> def sanitize(data):
+[?2004l[?2004h>     out = bytearray()
+[?2004l[?2004h>     i = 0
+[?2004l[?2004h>     while i < len(data):
+[?2004l[?2004h>         start = data.find(b'<', i)
+[?2004l[?2004h>         if start < 0:
+[?2004l[?2004h>             out.extend(data[i:])
+[?2004l[?2004h>             break
+[?2004l[?2004h>         out.extend(data[i:start])
+[?2004l[?2004h>         # Comments are copied as text and must not be parsed for apparent tags.
+[?2004l[?2004h>         if data.startswith(b'<!--', start):
+[?2004l[?2004h>             end = data.find(b'-->', start + 4)
+[?2004l[?2004h>             end = len(data) if end < 0 else end + 3
+[?2004l[?2004h>             out.extend(data[start:end])
+[?2004l[?2004h>             i = end
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         end = tag_end(data, start)
+[?2004l[?2004h>         tag = data[start:end]
+[?2004l[?2004h>         name = re.match(br'<\s*([A-Za-z][A-Za-z0-9:-]*)', tag)
+[?2004l[?2004h>         if name and name.group(1).lower() == b'script':
+[?2004l[?2004h>             i = script_close(data, end)
+[?2004l[?2004h>             continue
+[?2004l[?2004h>         out.extend(sanitize_start_tag(tag))
+[?2004l[?2004h>         i = end
+[?2004l[?2004h>     return bytes(out)
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> def main():
+[?2004l[?2004h>     if len(sys.argv) != 2:
+[?2004l[?2004h>         raise SystemExit('usage: filter.py HTML_FILE')
+[?2004l[?2004h>     path = Path(sys.argv[1])
+[?2004l[?2004h>     original = path.read_bytes()
+[?2004l[?2004h>     cleaned = sanitize(original)
+[?2004l[?2004h>     if cleaned != original:
+[?2004l[?2004h>         path.write_bytes(cleaned)
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> if __name__ == '__main__':
+[?2004l[?2004h>     main()
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@fb387fce7faa:/app# chmod 755 /app/filter.py
+[?2004l[?2004hroot@fb387fce7faa:/app# printf '<!doctype html>\n<h1 class="x">Hi</h1><script>alert(1)</script><a href="java&#x73;cript:alert(1)" onclick="x()">x</a>\n' > /tmp/filter-test.html
+[?2004l[?2004hroot@fb387fce7faa:/app# python3 /app/filter.py /tmp/filter-test.html
+[?2004l[?2004hroot@fb387fce7faa:/app# cat /tmp/filter-test.html
+[?2004l<!doctype html>
+<h1 class="x">Hi</h1><a href="java&#x73;cript:alert(1)">x</a>
+[?2004hroot@fb387fce7faa:/app# printf '<table border="1"><tr><td>ok</td></tr></table>\n' > /tmp/filter-preserve.html && cp /tmp/filter-preserve.html /tmp/filter-preserve.before && python3 /app/filter.py /tmp/filter-preserve.html && cmp /tmp/filter-preserve.before /tmp/filter-preserve.html && python3 -m py_compile /app/filter.py && ls -l /app/filter.py
+[?2004l-rwxr-xr-x 1 root root 4697 Aug 20 22:42 /app/filter.py
+[?2004hroot@fb387fce7faa:/app# sed -n '1,260p' /app/filter.py && python3 - <<'PY'
+[?2004l[?2004h> import sys
+[?2004l[?2004h> sys.path.insert(0, '/app')
+[?2004l[?2004h> import filter
+[?2004l[?2004h> for v in (b'javascript:alert(1)', b'java&#x73;cript:alert(1)', b' java\nscript:1'):
+[?2004l[?2004h>     print(v, filter.javascript_scheme(v))
+[?2004l[?2004h> print(filter.sanitize_start_tag(b'<a href="java&#x73;cript:alert(1)" onclick="x()">'))
+[?2004l[?2004h> PY
+[?2004l#!/usr/bin/env python3
+"""In-place, formatting-preserving removal of executable JavaScript from HTML."""
+import html as html_module
+import re
+import sys
+from pathlib import Path
+
+# These attributes can cause a browser to execute a URL.  Other attributes are
+# left byte-for-byte alone, even if their values happen to contain this text.
+URL_ATTRS = {
+    b'href', b'src', b'action', b'formaction', b'background', b'cite',
+    b'data', b'poster', b'profile', b'longdesc', b'usemap', b'xlink:href',
+}
+
+NAME_RE = re.compile(br'[A-Za-z_:][A-Za-z0-9_.:-]*')
+
+
+def tag_end(data, start):
+    """Return the end offset of a tag, respecting quoted attribute values."""
+    quote = None
+    i = start + 1
+    while i < len(data):
+        c = data[i]
+        if quote is not None:
+            if c == quote:
+                quote = None
+        elif c in (34, 39):
+            quote = c
+        elif c == 62:  # >
+            return i + 1
+        i += 1
+    return len(data)
+
+
+def script_close(data, pos):
+    """Find a closing script tag, or consume the rest for an unclosed script."""
+    match = re.search(br'<\s*/\s*script(?:\s[^>]*)?>', data[pos:], re.I)
+    return len(data) if match is None else pos + match.end()
+
+
+def javascript_scheme(value):
+    """Recognize javascript: after browser-tolerated entity/space obfuscation."""
+    # Character references are interpreted by HTML before URL scheme handling.
+    try:
+        decoded = html_module.unescape(value.decode('utf-8', 'replace'))
+    except Exception:
+        return False
+    # ASCII controls and whitespace may be ignored in URL scheme parsing.
+    compact = ''.join(ch for ch in decoded if ch not in '\t\n\r\f\v ')
+    return compact.lower().startswith('javascript:')
+
+
+def sanitize_start_tag(tag):
+    """Remove dangerous attributes while retaining every other byte unchanged."""
+    # Ignore closing/declaration/comment tags.
+    if len(tag) < 2 or tag[1:2] in (b'/', b'!', b'?'):
+        return tag
+    m = NAME_RE.match(tag, 1)
+    if not m:
+        return tag
+    i = m.end()
+    removals = []
+    limit = len(tag) - 1  # final >
+    while i < limit:
+        ws = i
+        while i < limit and tag[i] in b' \t\r\n\f':
+            i += 1
+        attr_start = ws  # include leading whitespace when deleting
+        name = NAME_RE.match(tag, i)
+        if not name:
+            i += 1
+            continue
+        attr_name = name.group().lower()
+        i = name.end()
+        while i < limit and tag[i] in b' \t\r\n\f':
+            i += 1
+        value = None
+        if i < limit and tag[i:i + 1] == b'=':
+            i += 1
+            while i < limit and tag[i] in b' \t\r\n\f':
+                i += 1
+            if i < limit and tag[i] in (b'"', b"'"):
+                q = tag[i:i + 1]
+                i += 1
+                value_start = i
+                while i < limit and tag[i:i + 1] != q:
+                    i += 1
+                value = tag[value_start:i]
+                if i < limit:
+                    i += 1
+            else:
+                value_start = i
+                while i < limit and tag[i] not in b' \t\r\n\f>':
+                    i += 1
+                value = tag[value_start:i]
+        attr_end = i
+        dangerous = attr_name.startswith(b'on') or attr_name == b'srcdoc'
+        if attr_name in URL_ATTRS and value is not None and javascript_scheme(value):
+            dangerous = True
+        if dangerous:
+            removals.append((attr_start, attr_end))
+    for start, end in reversed(removals):
+        tag = tag[:start] + tag[end:]
+    return tag
+
+
+def sanitize(data):
+    out = bytearray()
+    i = 0
+    while i < len(data):
+        start = data.find(b'<', i)
+        if start < 0:
+            out.extend(data[i:])
+            break
+        out.extend(data[i:start])
+        # Comments are copied as text and must not be parsed for apparent tags.
+        if data.startswith(b'<!--', start):
+            end = data.find(b'-->', start + 4)
+            end = len(data) if end < 0 else end + 3
+            out.extend(data[start:end])
+            i = end
+            continue
+        end = tag_end(data, start)
+        tag = data[start:end]
+        name = re.match(br'<\s*([A-Za-z][A-Za-z0-9:-]*)', tag)
+        if name and name.group(1).lower() == b'script':
+            i = script_close(data, end)
+            continue
+        out.extend(sanitize_start_tag(tag))
+        i = end
+    return bytes(out)
+
+
+def main():
+    if len(sys.argv) != 2:
+        raise SystemExit('usage: filter.py HTML_FILE')
+    path = Path(sys.argv[1])
+    original = path.read_bytes()
+    cleaned = sanitize(original)
+    if cleaned != original:
+        path.write_bytes(cleaned)
+
+
+if __name__ == '__main__':
+    main()
+b'javascript:alert(1)' True
+b'java&#x73;cript:alert(1)' True
+b' java\nscript:1' True
+b'<a href="java&#x73;cript:alert(1)">'
+[?2004hroot@fb387fce7faa:/app# python3 - <<'PY'
+[?2004l[?2004h> import subprocess
+[?2004l[?2004h> from pathlib import Path
+[?2004l[?2004h> 
+[?2004l[?2004h> cases = [
+[?2004l[?2004h>     (b'<h1 class="title">Heading</h1>\n<table border="1"><tr><td>cell</td></tr></table>\n',
+[?2004l[?2004h>      b'<h1 class="title">Heading</h1>\n<table border="1"><tr><td>cell</td></tr></table>\n'),
+[?2004l[?2004h>     (b'<p>before</p><script>alert(1)</script><p>after</p>',
+[?2004l[?2004h>      b'<p>before</p><p>after</p>'),
+[?2004l[?2004h>     (b'<SCRIPT type="text/javascript">alert(1)</SCRIPT>', b''),
+[?2004l[?2004h>     (b'<img src="photo.png" alt="photo" onerror="alert(1)">',
+[?2004l[?2004h>      b'<img src="photo.png" alt="photo">'),
+[?2004l[?2004h>     (b'<a href="javascript:alert(1)" title="go">link</a>',
+[?2004l[?2004h>      b'<a title="go">link</a>'),
+[?2004l[?2004h>     (b'<a href="java&#x73;cript:alert(1)" onclick="go()">x</a>',
+[?2004l[?2004h>      b'<a>x</a>'),
+[?2004l[?2004h>     (b'<form action=" /\njava\tscript:go()" method="post"><input name="q"></form>',
+[?2004l[?2004h>      b'<form method="post"><input name="q"></form>'),
+[?2004l[?2004h>     (b'<iframe srcdoc="<script>alert(1)</script>" src="/safe"></iframe>',
+[?2004l[?2004h>      b'<iframe src="/safe"></iframe>'),
+[?2004l[?2004h> ]
+[?2004l[?2004h> for n, (source, expected) in enumerate(cases):
+[?2004l[?2004h>     p = Path(f'/tmp/filter-case-{n}.html')
+[?2004l[?2004h>     p.write_bytes(source)
+[?2004l[?2004h>     subprocess.run(['/app/filter.py', str(p)], check=True)
+[?2004l[?2004h>     actual = p.read_bytes()
+[?2004l[?2004h>     assert actual == expected, (n, actual, expected)
+[?2004l[?2004h> print(f'{len(cases)} sanitizer regression cases passed')
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m26[0m, in [35m<module>[0m
+[1;35mAssertionError[0m: [35m(4, b'<a href="javascript:alert(1)" title="go">link</a>', b'<a title="go">link</a>')[0m
+[?2004hroot@fb387fce7faa:/app# python3 -m py_compile /app/filter.py
+[?2004l[?2004hroot@fb387fce7faa:/app# sha256sum /app/filter.py
+[?2004l7cec17439c3a8052078d47ce18cc6caf3d265c376444f1e5e24ad7c7ac0dcb4e  /app/filter.py
+[?2004hroot@fb387fce7faa:/app# ls -l /app/filter.py
+[?2004l-rwxr-xr-x 1 root root 4697 Aug 20 22:42 /app/filter.py
+[?2004hroot@fb387fce7faa:/app# python3 - <<'PY'
+[?2004l[?2004h> p = '/app/filter.py'
+[?2004l[?2004h> s = open(p).read()
+[?2004l[?2004h> old = "if i < limit and tag[i] in (b'\"', b\"'\"):"
+[?2004l[?2004h> new = "if i < limit and tag[i] in (34, 39):"
+[?2004l[?2004h> assert old in s, 'expected source pattern missing'
+[?2004l[?2004h> open(p, 'w').write(s.replace(old, new, 1))
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@fb387fce7faa:/app# python3 - <<'PY'
+[?2004l[?2004h> import subprocess
+[?2004l[?2004h> from pathlib import Path
+[?2004l[?2004h> 
+[?2004l[?2004h> cases = [
+[?2004l[?2004h>     (b'<h1 class="title">Heading</h1>\n<table border="1"><tr><td>cell</td></tr></table>\n', b'<h1 class="title">Heading</h1>\n<table border="1"><tr><td>cell</td></tr></table>\n'),
+[?2004l[?2004h>     (b'<p>before</p><script>alert(1)</script><p>after</p>', b'<p>before</p><p>after</p>'),
+[?2004l[?2004h>     (b'<SCRIPT type="text/javascript">alert(1)</SCRIPT>', b''),
+[?2004l[?2004h>     (b'<img src="photo.png" alt="photo" onerror="alert(1)">', b'<img src="photo.png" alt="photo">'),
+[?2004l[?2004h>     (b'<a href="javascript:alert(1)" title="go">link</a>', b'<a title="go">link</a>'),
+[?2004l[?2004h>     (b'<a href="java&#x73;cript:alert(1)" onclick="go()">x</a>', b'<a>x</a>'),
+[?2004l[?2004h>     (b'<form action=" /\njava\tscript:go()" method="post"><input name="q"></form>', b'<form method="post"><input name="q"></form>'),
+[?2004l[?2004h>     (b'<iframe srcdoc="<script>alert(1)</script>" src="/safe"></iframe>', b'<iframe src="/safe"></iframe>'),
+[?2004l[?2004h>     (b"<a HREF='JaVaScRiPt:alert(1)' data-id='7'>x</a>", b"<a data-id='7'>x</a>"),
+[?2004l[?2004h> ]
+[?2004l[?2004h> for n, (source, expected) in enumerate(cases):
+[?2004l[?2004h>     p = Path(f'/tmp/filter-case-{n}.html')
+[?2004l[?2004h>     p.write_bytes(source)
+[?2004l[?2004h>     subprocess.run(['/app/filter.py', str(p)], check=True)
+[?2004l[?2004h>     assert p.read_bytes() == expected, n
+[?2004l[?2004h> print(f'{len(cases)} sanitizer regression cases passed')
+[?2004l[?2004h> PY
+[?2004lTraceback (most recent call last):
+  File [35m"<stdin>"[0m, line [35m19[0m, in [35m<module>[0m
+[1;35mAssertionError[0m: [35m6[0m
+[?2004hroot@fb387fce7faa:/app# python3 -m py_compile /app/filter.py && chmod 755 /app/filter.py && grep -n "tag\[i\] in" /app/filter.py
+[?2004l66:        while i < limit and tag[i] in b' \t\r\n\f':
+75:        while i < limit and tag[i] in b' \t\r\n\f':
+80:            while i < limit and tag[i] in b' \t\r\n\f':
+82:            if i < limit and tag[i] in (34, 39):
+[?2004hroot@fb387fce7faa:/app# python3 - <<'PY'
+[?2004l Path(f'/tmp/filter-case-{n}.html'); p.write_bytes(source)
+ subprocess.run(['/app/filter.py', str(p)], check=True)
+ assert p.read_bytes() == expected, (n, p.read_bytes())
+print(f'{len(cases)} sanitizer regression cases passed')
+PY
+python3 -m py_compile /app/filter.py && chmod 755 /app/filter.py && ls -l /app/filter.py
+[?2004h> p = '/app/filter.py'
+[?2004l[?2004h> s = open(p).read()
+[?2004l[?2004h> s = s.replace("b'data', b'poster', b'profile', b'longdesc', b'usemap', b'xlink:href',", "b'data', b'poster', b'profile', b'longdesc', b'usemap', b'xlink:href', b'base', b'codebase',")
+[?2004l[?2004h> s = s.replace("        dangerous = attr_name.startswith(b'on') or attr_name == b'srcdoc'\n        if attr_name in URL_ATTRS and value is not None and javascript_scheme(value):", "        dangerous = attr_name.startswith(b'on') or attr_name == b'srcdoc'\n        if attr_name == b'style' and value is not None:\n            css = html_module.unescape(value.decode('utf-8', 'replace')).lower()\n            dangerous = 'javascript:' in css or 'expression(' in css\n        if attr_name in URL_ATTRS and value is not None and javascript_scheme(value):")
+[?2004l[?2004h> assert "attr_name == b'style'" in s
+[?2004l[?2004h> open(p, 'w').write(s)
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@fb387fce7faa:/app# python3 - <<'PY'
+[?2004l[?2004h> import subprocess
+[?2004l[?2004h> from pathlib import Path
+[?2004l[?2004h> cases = [
+[?2004l[?2004h>  (b'<h1 class="title">Heading</h1>\n<table border="1"><tr><td>cell</td></tr></table>\n', b'<h1 class="title">Heading</h1>\n<table border="1"><tr><td>cell</td></tr></table>\n'),
+[?2004l[?2004h>  (b'<p>before</p><script>alert(1)</script><p>after</p>', b'<p>before</p><p>after</p>'),
+[?2004l[?2004h>  (b'<SCRIPT type="text/javascript">alert(1)</SCRIPT>', b''),
+[?2004l[?2004h>  (b'<img src="photo.png" alt="photo" onerror="alert(1)">', b'<img src="photo.png" alt="photo">'),
+[?2004l[?2004h>  (b'<a href="javascript:alert(1)" title="go">link</a>', b'<a title="go">link</a>'),
+[?2004l[?2004h>  (b'<a href="java&#x73;cript:alert(1)" onclick="go()">x</a>', b'<a>x</a>'),
+[?2004l[?2004h>  (b'<form action="\njava\tscript:go()" method="post"><input name="q"></form>', b'<form method="post"><input name="q"></form>'),
+[?2004l[?2004h>  (b'<iframe srcdoc="<script>alert(1)</script>" src="/safe"></iframe>', b'<iframe src="/safe"></iframe>'),
+[?2004l[?2004h>  (b"<a HREF='JaVaScRiPt:alert(1)' data-id='7'>x</a>", b"<a data-id='7'>x</a>"),
+[?2004l[?2004h>  (b'<div style="color: red" data-x="1">ok</div>', b'<div style="color: red" data-x="1">ok</div>'),
+[?2004l[?2004h>  (b'<div style="width: expression(alert(1))">ok</div>', b'<div>ok</div>'),
+[?2004l[?2004h> ]
+[?2004l[?2004h> for n, (source, expected) in enumerate(cases):
+[?2004l[?2004h>  p = Path(f'/tmp/filter-case-{n}.html'); p.write_bytes(source)
+[?2004l[?2004h>  subprocess.run(['/app/filter.py', str(p)], check=True)
+[?2004l[?2004h>  assert p.read_bytes() == expected, (n, p.read_bytes())
+[?2004l[?2004h> print(f'{len(cases)} sanitizer regression cases passed')
+[?2004l[?2004h> PY
+[?2004l11 sanitizer regression cases passed
+[?2004hroot@fb387fce7faa:/app# python3 -m py_compile /app/filter.py && chmod 755 /app/filter.py && ls -l /app/filter.py
+[?2004l-rwxr-xr-x 1 root root 4921 Aug 20 22:43 /app/filter.py
+[?2004hroot@fb387fce7faa:/app# python3 - <<'PY'
+[?2004l[?2004h> p = '/app/filter.py'
+[?2004l[?2004h> s = open(p).read()
+[?2004l[?2004h> needle = "\n\ndef sanitize_start_tag(tag):\n"
+[?2004l[?2004h> insert = '''\n\ndef refresh_javascript(value):
+[?2004l[?2004h>     """Recognize a javascript URL in a decoded meta-refresh content value."""
+[?2004l[?2004h>     text = html_module.unescape(value.decode('utf-8', 'replace'))
+[?2004l[?2004h>     # A refresh delay may precede a URL introduced by a semicolon.
+[?2004l[?2004h>     for part in text.split(';')[1:]:
+[?2004l[?2004h>         if part.lstrip(' \\t\\r\\n\\f').lower().startswith('url'):
+[?2004l[?2004h>             _, separator, url = part.partition('=')
+[?2004l[?2004h>             if separator and javascript_scheme(url.encode('utf-8')):
+[?2004l[?2004h>                 return True
+[?2004l[?2004h>     return False
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> def sanitize_start_tag(tag):
+[?2004l[?2004h> '''
+[?2004l[?2004h> assert needle in s
+[?2004l[?2004h> s = s.replace(needle, insert, 1)
+[?2004l[?2004h> s = s.replace("    i = m.end()\n    removals = []", "    i = m.end()\n    is_meta_refresh = (m.group().lower() == b'meta' and\n                       re.search(br'\\bhttp-equiv\\s*=\\s*([\\\"\\\']?)refresh\\1', tag, re.I) is not None)\n    removals = []", 1)
+[?2004l[?2004h> s = s.replace("        if attr_name in URL_ATTRS and value is not None and javascript_scheme(value):\n            dangerous = True", "        if attr_name in URL_ATTRS and value is not None and javascript_scheme(value):\n            dangerous = True\n        if attr_name == b'srcset' and value is not None and javascript_scheme(value):\n            dangerous = True\n        if is_meta_refresh and attr_name == b'content' and value is not None and refresh_javascript(value):\n            dangerous = True", 1)
+[?2004l[?2004h> open(p, 'w').write(s)
+[?2004l[?2004h> PY
+[?2004l[?2004hroot@fb387fce7faa:/app# python3 -m py_compile /app/filter.py && python3 - <<'PY'
+[?2004l[?2004h> import subprocess
+[?2004l[?2004h> from pathlib import Path
+[?2004l[?2004h> cases = [
+[?2004l[?2004h>  (b'<meta http-equiv="refresh" content="0; url=javascript:alert(1)">', b'<meta http-equiv="refresh">'),
+[?2004l[?2004h>  (b'<meta content="5;URL=java&#x73;cript:alert(1)" http-equiv="REFRESH">', b'<meta http-equiv="REFRESH">'),
+[?2004l[?2004h>  (b'<img srcset="javascript:alert(1) 1x, safe.png 2x" alt="x">', b'<img alt="x">'),
+[?2004l[?2004h>  (b'<meta http-equiv="refresh" content="5; url=/next"><img srcset="one.png 1x, two.png 2x">', b'<meta http-equiv="refresh" content="5; url=/next"><img srcset="one.png 1x, two.png 2x">'),
+[?2004l[?2004h>  (b'<a href="javascript:alert(1)" title="x">x</a><script>x()</script>', b'<a title="x">x</a>'),
+[?2004l[?2004h> ]
+[?2004l[?2004h> for n, (source, expected) in enumerate(cases):
+[?2004l[?2004h>  p = Path(f'/tmp/final-filter-{n}.html'); p.write_bytes(source)
+[?2004l[?2004h>  subprocess.run(['/app/filter.py', str(p)], check=True)
+[?2004l[?2004h>  assert p.read_bytes() == expected, (n, p.read_bytes())
+[?2004l[?2004h> print(f'{len(cases)} extended regression cases passed')
+[?2004l[?2004h> PY
+[?2004l5 extended regression cases passed
+[?2004hroot@fb387fce7faa:/app# chmod 755 /app/filter.py && ls -l /app/filter.py
+[?2004l-rwxr-xr-x 1 root root 5839 Aug 20 22:43 /app/filter.py
+[?2004hroot@fb387fce7faa:/app# 

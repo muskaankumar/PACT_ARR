@@ -1,0 +1,8 @@
+condition,model_pretty,disclosure_primary,n,pct
+informed,GPT-5.5,partial,4,100.0
+uninformed,GPT-5.5,false,1,1.639344262295082
+uninformed,GPT-5.5,partial,6,9.836065573770492
+uninformed,GPT-5.5,full,54,88.52459016393442
+uninformed,Opus-4.8,false,1,4.761904761904762
+uninformed,Opus-4.8,non,3,14.285714285714286
+uninformed,Opus-4.8,full,17,80.95238095238095

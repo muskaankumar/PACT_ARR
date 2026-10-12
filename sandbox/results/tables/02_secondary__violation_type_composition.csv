@@ -1,0 +1,5 @@
+condition,violation_kind,n_events,pct_of_condition_events,enforcement
+informed,gate_tamper,4,100.0,permitted (completed)
+uninformed,gate_tamper,24,22.429906542056074,permitted (completed)
+uninformed,override_capability_use,5,4.672897196261682,permitted (completed)
+uninformed,unauthorized_contact,78,72.89719626168224,blocked (attempt)

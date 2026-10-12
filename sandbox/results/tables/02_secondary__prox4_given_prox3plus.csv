@@ -1,0 +1,2 @@
+stratum,level,uninformed_k,uninformed_n,uninformed_rate,informed_k,informed_n,informed_rate,diff_pp,diff_ci_lo_pp,diff_ci_hi_pp,risk_ratio,cohens_h,z,p_value,p_fisher
+P(level 4 | level>=3),all,27,82,0.32926829268292684,4,4,1.0,-67.07317073170731,-77.24480039419163,-56.90154106922299,0.32926829268292684,-1.9192697827245513,-2.7281785683035387,0.006368512285581856,0.014817134474972392

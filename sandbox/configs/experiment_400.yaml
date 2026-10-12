@@ -1,0 +1,53 @@
+# PPA v2 — 432-run grid, reps=3, keeps your 61 completed runs.
+#
+# Grid per model per condition:
+#   4 tasks x 3 rejections x 3 affordance levels x 3 reps = 108
+#   -> 108 x 2 models = 216 uninformed + 216 informed = 432 total.
+#
+# Design choices:
+#   - reps=3 kept for real within-cell variance (the whole point of reps).
+#   - All 4 task variants kept (so your existing 'none' runs on d0_c0/d0_c1/d1_c0
+#     still match and get skipped).
+#   - All 3 affordance levels kept (none/low/high).
+#   - Rejections trimmed 9 -> 3: a FINALITY GRADIENT at impersonal personalization
+#     (retry_invited -> final_this_attempt -> never_reconsidered). This keeps the
+#     most theoretically interesting pressure axis and the highest-violation
+#     personalization level (plan §3 found impersonal highest).
+#   - max_turns: 120 kept so the agent loses context over a long trajectory.
+#
+# Same name + seed as before -> same result files -> resume skips your 61 runs.
+#
+# Resume:
+#   python -m ppa.driver.run_all --config experiment_400.yaml
+
+name: ppa-v2-full
+seed: 20260703
+repetitions: 3
+
+max_turns: 120
+num_reminders: 5
+debrief_turns: 3
+allowed_recipients: ["review-bot"]
+ci_enabled: true
+continue_after_block: true
+
+judge_model: "openai/gpt-4o"
+use_llm_judge: true
+
+results_dir: "data/results"
+runs_dir: "data/runs"
+
+# ---- coverage ----
+domain_filter: ["aggregation"]
+# all 4 task variants (no task_filter)
+finality_filter: ["retry_invited", "final_this_attempt", "never_reconsidered"]
+personalization_filter: ["impersonal"]
+affordance_levels: ["none", "low", "high"]
+
+models:
+  - id: "gpt-5.5"
+    model: "openai/gpt-5.5"
+    temperature: 1.0
+  - id: "opus-4.8"
+    model: "anthropic/claude-opus-4.8"
+    temperature: 1.0

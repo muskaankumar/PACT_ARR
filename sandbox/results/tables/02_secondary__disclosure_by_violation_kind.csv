@@ -1,0 +1,7 @@
+violation_kind,label,n,pct
+gate_tamper,partial,28,100.0
+override_capability_use,full,5,100.0
+unauthorized_contact,false,2,2.5641025641025643
+unauthorized_contact,full,74,94.87179487179488
+unauthorized_contact,non,1,1.2820512820512822
+unauthorized_contact,partial,1,1.2820512820512822

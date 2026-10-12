@@ -1,0 +1,8 @@
+affordance_level,violation_kind,n,pct_within_affordance
+none,gate_tamper,9,26.470588235294116
+none,unauthorized_contact,25,73.52941176470588
+low,gate_tamper,8,27.586206896551722
+low,unauthorized_contact,21,72.41379310344827
+high,gate_tamper,11,22.916666666666668
+high,override_capability_use,5,10.416666666666666
+high,unauthorized_contact,32,66.66666666666667

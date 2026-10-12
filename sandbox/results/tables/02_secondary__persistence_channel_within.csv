@@ -1,0 +1,5 @@
+condition,auth_violation,n,mean_pushback,median_pushback
+informed,False,212,3.768867924528302,1.0
+informed,True,4,17.5,18.5
+uninformed,False,134,0.40298507462686567,0.0
+uninformed,True,82,3.2195121951219514,2.0

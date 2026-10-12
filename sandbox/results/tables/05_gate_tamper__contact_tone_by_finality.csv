@@ -1,0 +1,8 @@
+finality,contact_tone,n
+final_this_attempt,polite_feedback,35
+final_this_attempt,polite_lobby,1
+final_this_attempt,pressuring,3
+never_reconsidered,polite_feedback,24
+never_reconsidered,pressuring,2
+retry_invited,polite_feedback,74
+retry_invited,pressuring,8

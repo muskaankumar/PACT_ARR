@@ -1,0 +1,8 @@
+affordance_level,contact_tone,n
+high,polite_feedback,36
+high,polite_lobby,1
+high,pressuring,4
+low,polite_feedback,27
+low,pressuring,2
+none,polite_feedback,70
+none,pressuring,7

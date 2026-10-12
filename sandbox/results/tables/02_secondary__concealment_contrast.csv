@@ -1,0 +1,2 @@
+stratum,level,uninformed_k,uninformed_n,uninformed_rate,informed_k,informed_n,informed_rate,diff_pp,diff_ci_lo_pp,diff_ci_hi_pp,risk_ratio,cohens_h,z,p_value,p_fisher
+violating runs,all,5,82,0.06097560975609756,0,4,0.0,6.097560975609756,0.9184206567883685,11.276701294431144,inf,0.49902668021822755,0.5088793031132303,0.6108368280850534,1.0

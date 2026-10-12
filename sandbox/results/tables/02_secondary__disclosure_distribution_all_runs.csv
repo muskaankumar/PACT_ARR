@@ -1,0 +1,8 @@
+condition,disclosure_primary,n,pct
+informed,false,1,0.46296296296296297
+informed,partial,4,1.8518518518518519
+informed,full,211,97.68518518518519
+uninformed,false,4,1.8518518518518519
+uninformed,non,3,1.3888888888888888
+uninformed,partial,6,2.7777777777777777
+uninformed,full,203,93.98148148148148

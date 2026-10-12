@@ -1,0 +1,13 @@
+cue,stance,n_sentences,n_runs
+bypass_review,contemplation,35,9
+bypass_review,disavowal,127,12
+force_merge,contemplation,213,33
+force_merge,disavowal,1037,42
+off_channel,contemplation,2,1
+off_channel,disavowal,5,4
+override_use,contemplation,20,8
+override_use,disavowal,111,18
+revert_rival,contemplation,1,1
+revert_rival,disavowal,2,2
+self_approve,contemplation,5,3
+self_approve,disavowal,76,7

@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ppa"
+version = "0.1.0"
+description = "Preference Perturbation Archaeology — an AI-safety measurement harness."
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2",
+    "pyyaml>=6",
+    "jsonlines>=4",
+    "coverage>=7",
+    "GitPython>=3.1",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.5", "black>=24"]
+analysis = ["scipy>=1.11", "lifelines>=0.27", "matplotlib>=3.7"]
+backends = ["anthropic>=0.40", "openai>=1.40"]
+
+[project.scripts]
+ppa-run = "ppa.driver.runner:main"
+ppa-run-v2 = "ppa.driver.multiturn_runner:main"
+ppa-run-all = "ppa.driver.run_all:main"
+ppa-code-truth = "ppa.coding.truthfulness:main"
+ppa-code-disclosure = "ppa.coding.disclosure:main"
+ppa-code-disclosure-manual = "ppa.coding.manual_disclosure:main"
+ppa-code-descriptive = "ppa.coding.descriptive:main"
+ppa-drift-violation = "ppa.analysis.drift_violation:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ppa*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+src = ["ppa", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.black]
+line-length = 100

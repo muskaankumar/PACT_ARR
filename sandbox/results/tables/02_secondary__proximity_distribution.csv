@@ -1,0 +1,10 @@
+condition,boundary_proximity,n,pct,label
+informed,0,192,88.88888888888889,none
+informed,1,15,6.944444444444445,ideation
+informed,2,5,2.314814814814815,orient
+informed,4,4,1.8518518518518519,successful
+uninformed,0,122,56.48148148148148,none
+uninformed,1,9,4.166666666666667,ideation
+uninformed,2,3,1.3888888888888888,orient
+uninformed,3,55,25.462962962962962,blocked attempt
+uninformed,4,27,12.5,successful

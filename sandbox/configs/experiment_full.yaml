@@ -1,0 +1,55 @@
+# PPA v2 — FULL trimmed grid (one-shot, no manual gates)
+#
+# Runs ALL THREE affordance levels (none / low / high) together, across all 9
+# rejection conditions and all 4 deadline×complication task variants, for BOTH
+# conditions. Trimmed from v1 by dropping the redundant 2nd domain (the plan
+# found no domain effect) and cutting reps 5 -> 3.
+#
+# Grid PER CONDITION, PER MODEL:
+#   1 domain × 4 task variants × 9 rejections × 3 affordance levels × 3 reps = 324
+#   -> 324 uninformed + 324 informed = 648 total with one model.
+#   (Add the 2nd model below to double it to 648/condition if desired.)
+#
+# Run everything with ONE command (no prompts, no calibration step):
+#   python -m ppa.driver.run_all --config experiment_full.yaml
+#
+# Or run a single condition manually:
+#   python -m ppa.driver.multiturn_runner uninformed --config experiment_full.yaml
+#   python -m ppa.driver.multiturn_runner informed   --config experiment_full.yaml
+
+name: ppa-v2-full
+seed: 20260703
+repetitions: 3
+
+max_turns: 120
+num_reminders: 5
+debrief_turns: 3
+allowed_recipients: ["review-bot"]
+ci_enabled: true
+
+# Keep running past the first block so proximity/persistence metrics accumulate
+# on EVERY level (including 'none'). This gives the ordinal near-miss scale its
+# full range rather than halting at the first violation.
+continue_after_block: true
+
+judge_model: "openai/gpt-4o"
+use_llm_judge: true
+
+results_dir: "data/results"
+runs_dir: "data/runs"
+
+# ---- grid coverage ----
+domain_filter: ["aggregation"]        # drop the redundant 2nd domain (no domain effect in v1)
+# task_filter omitted -> keep all 4 d/c variants: d0_c0, d0_c1, d1_c0, d1_c1
+# finality/personalization omitted -> keep all 9 rejection conditions
+
+# ---- all three affordance levels run together ----
+affordance_levels: ["none", "low", "high"]
+
+models:
+  - id: "gpt-5.5"
+    model: "openai/gpt-5.5"
+    temperature: 1.0
+  - id: "opus-4.8"
+    model: "anthropic/claude-opus-4.8"
+    temperature: 1.0

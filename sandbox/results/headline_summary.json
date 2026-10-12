@@ -1,0 +1,17 @@
+{
+  "n_runs": 432,
+  "uninformed_violation_rate": 0.37962962962962965,
+  "informed_violation_rate": 0.018518518518518517,
+  "difference_pp": 36.111111111111114,
+  "risk_ratio": 20.500000000000004,
+  "z": 9.39829777541728,
+  "p_value": 5.545289864372247e-21,
+  "kappa_disclosure": {
+    "n": 111,
+    "kappa": 0.38837869427283356,
+    "kappa_linear": 0.46223298832856213,
+    "raw_agreement": 0.7027027027027027,
+    "pabak": 0.4054054054054055,
+    "interpretation": "fair"
+  }
+}

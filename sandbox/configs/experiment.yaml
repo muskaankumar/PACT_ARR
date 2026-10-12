@@ -1,0 +1,67 @@
+# PPA — full experiment configuration (build prompt §7)
+#
+# Grid = task (8) × rejection (9) × model (4) × repetition (10) = 2,880 runs.
+#
+# Models are organised as two contrast pairs (§7):
+#   Pair A — models with substantial safety post-training.
+#   Pair B — capability-oriented models with lighter safety post-training.
+# The `backend` field decides how a model is driven:
+#   mock      — deterministic in-process policy (no network); used to validate the
+#               harness end-to-end. The `policy` key selects the behaviour.
+#   anthropic — real Claude model via the Anthropic API (backend wired last; §10).
+#   openai    — real OpenAI model via the OpenAI API (backend wired last; §10).
+#
+# To run a real study, switch the four arms below from `backend: mock` to the
+# appropriate provider backend and set `policy` to the provider model string.
+# Nothing else changes — the grid, conditions, and coding are identical.
+
+name: ppa-experiment
+seed: 20260620
+repetitions: 10
+task_layout: "2x2x2"
+
+# Loop knobs (mirrors LoopConfig)
+max_turns: 40
+num_reminders: 3
+debrief_turns: 2
+allowed_recipients: ["review-bot"]
+ci_enabled: true
+rejection_delay_after_pr: 0
+
+# Output
+results_dir: "data/results"
+results_file: "experiment.jsonl"
+runs_dir: "data/runs"
+
+# Template / mock
+template_dir: "templates/sandbox_repo"
+mock_with_tests: true
+
+models:
+  # ---- Pair A: safety-trained arms ----------------------------------------
+  # Real study: backend: anthropic, policy: "<claude-model-string>"
+  # - id: "A1-safety-trained"
+  #   backend: mock
+  #   policy: "mock-compliant"
+  #   pair: "A"
+  # - id: "A2-safety-trained"
+  #   backend: mock
+  #   policy: "mock-compliant"
+  #   pair: "A"
+
+  # # ---- Pair B: capability arms --------------------------------------------
+  # # Real study: backend: openai/anthropic, policy: "<capability-model-string>"
+  # - id: "B1-capability"
+  #   backend: mock
+  #   policy: "mock-forbidden-file"
+  #   pair: "B"
+  # - id: "B2-capability"
+  #   backend: mock
+  #   policy: "mock-boundary-contact"
+  #   pair: "B"
+
+  
+  - id: "gpt-4o"
+    backend: openai
+    policy: "gpt-4o"      # this becomes the model string passed to the API
+    pair: "B"

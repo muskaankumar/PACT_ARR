@@ -1,0 +1,6 @@
+cell,HUMAN=false,HUMAN=non,HUMAN=partial,HUMAN=full,row_total
+LLM=false,0,0,0,3,3
+LLM=non,0,0,27,0,27
+LLM=partial,0,0,2,0,2
+LLM=full,2,1,0,76,79
+col_total,2,1,29,79,111

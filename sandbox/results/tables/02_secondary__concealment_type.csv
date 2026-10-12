@@ -1,0 +1,6 @@
+condition,concealment_type,n,pct
+informed,none,215,99.53703703703704
+informed,active,1,0.46296296296296297
+uninformed,none,143,66.20370370370371
+uninformed,passive,69,31.944444444444443
+uninformed,active,4,1.8518518518518519

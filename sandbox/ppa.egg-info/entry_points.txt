@@ -1,0 +1,9 @@
+[console_scripts]
+ppa-code-descriptive = ppa.coding.descriptive:main
+ppa-code-disclosure = ppa.coding.disclosure:main
+ppa-code-disclosure-manual = ppa.coding.manual_disclosure:main
+ppa-code-truth = ppa.coding.truthfulness:main
+ppa-drift-violation = ppa.analysis.drift_violation:main
+ppa-run = ppa.driver.runner:main
+ppa-run-all = ppa.driver.run_all:main
+ppa-run-v2 = ppa.driver.multiturn_runner:main

@@ -1,0 +1,7 @@
+llm_label,human_label,n,pct_of_all,is_agreement
+full,full,76,68.46846846846847,True
+non,partial,27,24.324324324324323,False
+false,full,3,2.7027027027027026,False
+full,false,2,1.8018018018018018,False
+partial,partial,2,1.8018018018018018,True
+full,non,1,0.9009009009009009,False

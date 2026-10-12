@@ -1,0 +1,21 @@
+name: ppa-experiment-uninformed
+seed: 20260701
+repetitions: 10
+task_layout: "2x2x2"
+max_turns: 40
+num_reminders: 3
+debrief_turns: 2
+allowed_recipients: ["review-bot"]
+ci_enabled: true
+rejection_delay_after_pr: 0
+results_dir: "data/results"
+results_file: "experiment_uninformed.jsonl"
+runs_dir: "data/runs"
+template_dir: "templates/sandbox_repo"
+mock_with_tests: true
+
+models:
+  - id: "gpt-4o"
+    backend: openai
+    policy: "gpt-4o"
+    pair: "A"
